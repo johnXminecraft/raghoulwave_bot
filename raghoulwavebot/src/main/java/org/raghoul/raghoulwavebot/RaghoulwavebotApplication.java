@@ -1,13 +1,13 @@
-package org.raghoul818.raghoulwave;
+package org.raghoul.raghoulwavebot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class RaghoulwaveApplication {
+public class RaghoulwavebotApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RaghoulwaveApplication.class, args);
+        SpringApplication.run(RaghoulwavebotApplication.class, args);
     }
 
 }

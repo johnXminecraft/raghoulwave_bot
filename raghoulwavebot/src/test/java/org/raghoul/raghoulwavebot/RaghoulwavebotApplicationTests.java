@@ -1,10 +1,10 @@
-package org.raghoul818.raghoulwave;
+package org.raghoul.raghoulwavebot;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class RaghoulwaveApplicationTests {
+class RaghoulwavebotApplicationTests {
 
     @Test
     void contextLoads() {
