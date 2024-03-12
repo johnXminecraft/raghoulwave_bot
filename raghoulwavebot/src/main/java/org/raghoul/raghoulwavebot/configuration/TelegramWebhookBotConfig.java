@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class TelegramWebhookBotConfig {
         allowedUpdatesList.add("message");
 
         SetWebhook webhook = new SetWebhook();
-        webhook.setUrl("https://677d-109-122-6-227.ngrok-free.app");
+        webhook.setUrl("");
         webhook.setAllowedUpdates(allowedUpdatesList);
 
         return webhook;
@@ -41,6 +40,6 @@ public class TelegramWebhookBotConfig {
     @Bean
     public String botToken() {
 
-        return "6954126928:AAHyjjbIne_5p86iDC49X0hS8LphTniwB-k";
+        return "";
     }
 }
