@@ -1,5 +1,6 @@
 package org.raghoul.raghoulwavebot.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
@@ -10,14 +11,23 @@ import java.util.List;
 @Configuration
 public class TelegramWebhookBotConfig {
 
+    @Value("${raghoulwavebot.config.webhook.url}")
+    private String url;
+    @Value("${raghoulwavebot.config.webhook.token}")
+    private String token;
+
+    private final List<String> allowedUpdatesList = new ArrayList<>(){
+        {
+            add("callback_query");
+            add("message");
+        }
+    };
+
     @Bean
     public DefaultBotOptions options() {
 
-        List<String> allowedUpdatesList = new ArrayList<>();
-        allowedUpdatesList.add("callback_query");
-        allowedUpdatesList.add("message");
-
         DefaultBotOptions options = new DefaultBotOptions();
+
         options.setAllowedUpdates(allowedUpdatesList);
 
         return options;
@@ -26,12 +36,9 @@ public class TelegramWebhookBotConfig {
     @Bean
     public SetWebhook setWebhook() {
 
-        List<String> allowedUpdatesList = new ArrayList<>();
-        allowedUpdatesList.add("callback_query");
-        allowedUpdatesList.add("message");
-
         SetWebhook webhook = new SetWebhook();
-        webhook.setUrl("");
+
+        webhook.setUrl(url);
         webhook.setAllowedUpdates(allowedUpdatesList);
 
         return webhook;
@@ -40,6 +47,6 @@ public class TelegramWebhookBotConfig {
     @Bean
     public String botToken() {
 
-        return "";
+        return token;
     }
 }

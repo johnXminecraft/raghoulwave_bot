@@ -17,6 +17,7 @@ public class User {
     @Id
     @GeneratedValue
     private Integer id;
+    private Long telegramId;
     private String tag;
     private String first;
     private String last;

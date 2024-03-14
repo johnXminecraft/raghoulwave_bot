@@ -7,7 +7,6 @@ import org.raghoul.raghoulwavebot.mapper.UserMapper;
 import org.raghoul.raghoulwavebot.model.User;
 import org.raghoul.raghoulwavebot.repository.UserRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
