@@ -3,6 +3,10 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+application-dev.properties
+
+# ignore all logs
+*.log
 
 ### STS ###
 .apt_generated
