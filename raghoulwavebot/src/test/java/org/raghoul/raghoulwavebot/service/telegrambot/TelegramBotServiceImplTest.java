@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(MockitoJUnitRunner.class)
@@ -28,6 +29,8 @@ class TelegramBotServiceImplTest {
     private SendMessage message;
     @Mock
     private Message incomingMessage;
+    @Mock
+    private User user;
 
     @Test
     public void shouldHandleUpdateAndSendMessage() {

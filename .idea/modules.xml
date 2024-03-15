@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/raghoulwave_bot.iml" filepath="$PROJECT_DIR$/.idea/raghoulwave_bot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/raghoulwavebot/raghoulwavebot.iml" filepath="$PROJECT_DIR$/raghoulwavebot/raghoulwavebot.iml" />
     </modules>
   </component>
 </project>

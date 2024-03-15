@@ -19,7 +19,7 @@ public class DatabaseConfig {
     private String password;
 
     @Bean
-    public DataSource postgresDataSource() {
+    public DataSource dataSource() {
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
