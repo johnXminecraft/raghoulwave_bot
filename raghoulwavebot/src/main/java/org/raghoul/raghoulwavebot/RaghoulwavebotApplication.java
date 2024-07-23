@@ -1,5 +1,6 @@
 package org.raghoul.raghoulwavebot;
 
+import org.raghoul.raghoulwavebot.spotifyapi.SpotifyApiAuthorization;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.raghoul.raghoulwavebot.dto.UserDto;
 import org.raghoul.raghoulwavebot.service.user.UserService;
+import org.raghoul.raghoulwavebot.spotifyapi.SpotifyApiAuthorization;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -19,6 +20,7 @@ import java.util.Objects;
 public class TelegramBotServiceImpl implements TelegramBotService {
 
     private final UserService userService;
+    private final SpotifyApiAuthorization spotifyApiAuthorization;
     @Value("${raghoulwavebot.config.administrator.id}")
     private String administratorId;
 
@@ -55,11 +57,19 @@ public class TelegramBotServiceImpl implements TelegramBotService {
         }
         else if(
                 Objects.equals(incomingMessage.getText(), "getAll") &&
-                Objects.equals(Long.toString(user.getId()), administratorId)
+                        Objects.equals(Long.toString(user.getId()), administratorId)
         ) {
             List<UserDto> userDtoList = userService.getAll();
             String result = userDtoList.toString();
             messageToSend.setText(result);
+        }
+        else if(
+                Objects.equals(incomingMessage.getText(), "authorize") &&
+                        Objects.equals(Long.toString(user.getId()), administratorId)
+        ) {
+            spotifyApiAuthorization.authorizationCodeUri_Sync();
+            spotifyApiAuthorization.authorizationCodeUri_Async();
+            messageToSend.setText("authorized");
         }
         else {
             messageToSend.setText("meow");

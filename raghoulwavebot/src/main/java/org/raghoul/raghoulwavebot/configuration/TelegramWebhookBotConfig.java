@@ -49,4 +49,9 @@ public class TelegramWebhookBotConfig {
 
         return token;
     }
+
+    @Bean
+    public String url() {
+        return url;
+    }
 }
