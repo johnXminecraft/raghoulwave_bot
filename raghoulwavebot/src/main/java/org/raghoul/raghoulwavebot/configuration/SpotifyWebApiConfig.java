@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class SpotifyApiAuthorizationConfig {
+public class SpotifyWebApiConfig {
 
     @Value("${raghoulwavebot.config.spotify.client_id}")
     private String clientId;

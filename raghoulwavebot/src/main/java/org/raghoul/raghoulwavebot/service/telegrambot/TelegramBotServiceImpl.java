@@ -3,8 +3,8 @@ package org.raghoul.raghoulwavebot.service.telegrambot;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.raghoul.raghoulwavebot.dto.UserDto;
+import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiAuthorizationService;
 import org.raghoul.raghoulwavebot.service.user.UserService;
-import org.raghoul.raghoulwavebot.spotifyapi.SpotifyApiAuthorization;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -20,8 +20,7 @@ import java.util.Objects;
 public class TelegramBotServiceImpl implements TelegramBotService {
 
     private final UserService userService;
-    private final SpotifyApiAuthorization spotifyApiAuthorization;
-    private final String redirectUriString;
+    private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
     @Value("${raghoulwavebot.config.administrator.id}")
     private String administratorId;
 
@@ -54,12 +53,13 @@ public class TelegramBotServiceImpl implements TelegramBotService {
                         .build();
                 userService.add(newUser);
 
-                String redirectUriString = spotifyApiAuthorization.authorizationCodeUri_Sync();
+                String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync();
 
                 messageToSend.setText("Registration is successful :) \n\n" + redirectUriString);
             }
-        }
-        else if(
+        } else if(Objects.equals(incomingMessage.getText(), "confirm")) {
+            messageToSend.setText(spotifyWebApiAuthorizationService.authorizationCode_Sync());
+        } else if(
                 Objects.equals(incomingMessage.getText(), "getAll") &&
                         Objects.equals(Long.toString(user.getId()), administratorId)
         ) {
