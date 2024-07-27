@@ -21,6 +21,7 @@ public class TelegramBotServiceImpl implements TelegramBotService {
 
     private final UserService userService;
     private final SpotifyApiAuthorization spotifyApiAuthorization;
+    private final String redirectUriString;
     @Value("${raghoulwavebot.config.administrator.id}")
     private String administratorId;
 
@@ -52,7 +53,10 @@ public class TelegramBotServiceImpl implements TelegramBotService {
                         .lang(user.getLanguageCode())
                         .build();
                 userService.add(newUser);
-                messageToSend.setText("Registration is successful :)");
+
+                String redirectUriString = spotifyApiAuthorization.authorizationCodeUri_Sync();
+
+                messageToSend.setText("Registration is successful :) \n\n" + redirectUriString);
             }
         }
         else if(
@@ -62,14 +66,6 @@ public class TelegramBotServiceImpl implements TelegramBotService {
             List<UserDto> userDtoList = userService.getAll();
             String result = userDtoList.toString();
             messageToSend.setText(result);
-        }
-        else if(
-                Objects.equals(incomingMessage.getText(), "authorize") &&
-                        Objects.equals(Long.toString(user.getId()), administratorId)
-        ) {
-            spotifyApiAuthorization.authorizationCodeUri_Sync();
-            spotifyApiAuthorization.authorizationCodeUri_Async();
-            messageToSend.setText("authorized");
         }
         else {
             messageToSend.setText("meow");

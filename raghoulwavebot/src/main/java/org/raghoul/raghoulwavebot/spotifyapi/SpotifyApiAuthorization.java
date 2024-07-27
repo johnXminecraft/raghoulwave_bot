@@ -1,10 +1,9 @@
 package org.raghoul.raghoulwavebot.spotifyapi;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.SpotifyHttpManager;
@@ -18,45 +17,66 @@ import java.util.concurrent.CompletionException;
 @Getter
 @Setter
 @ToString
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Component
 public class SpotifyApiAuthorization {
 
-    @Value("${raghoulwavebot.config.spotify.client.id}")
     private String clientId;
-    @Value("${raghoulwavebot.config.spotify.client.secret}")
     private String clientSecret;
-    private URI redirectUri = SpotifyHttpManager.makeUri("https://t.me/raghoulwave_bot");
+    private String redirectUriString;
+    private URI redirectUri;
+    private SpotifyApi spotifyApi;
+    private AuthorizationCodeUriRequest authorizationCodeUriRequest;
 
-    private final SpotifyApi spotifyApi = new SpotifyApi.Builder()
-            .setClientId(clientId)
-            .setClientSecret(clientSecret)
-            .setRedirectUri(redirectUri)
-            .build();
-    private final AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodeUri()
-            .response_type("code")
-            .client_id(clientId)
-            .redirect_uri(redirectUri)
-            .state(RandomStringUtils.random(16, true, false))
-            .build();
+    @Autowired
+    public SpotifyApiAuthorization(
+            String clientId,
+            String clientSecret,
+            String redirectUriString
+    ) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.redirectUriString = redirectUriString;
+        this.redirectUri = SpotifyHttpManager.makeUri(redirectUriString);
 
-    public void authorizationCodeUri_Sync() {
-        final URI uri = authorizationCodeUriRequest.execute();
+        spotifyApi = new SpotifyApi.Builder()
+                .setClientId(clientId)
+                .setClientSecret(clientSecret)
+                .setRedirectUri(redirectUri)
+                .build();
 
-        System.out.println("URI: " + uri.toString());
+        authorizationCodeUriRequest = spotifyApi.authorizationCodeUri()
+                .response_type("code")
+                .client_id(clientId)
+                .redirect_uri(redirectUri)
+                .state(RandomStringUtils.random(16, true, false))
+                .build();
     }
 
-    public void authorizationCodeUri_Async() {
+    public String authorizationCodeUri_Sync() {
+
+        final URI uri = authorizationCodeUriRequest.execute();
+
+        return uri.toString();
+    }
+
+    public String authorizationCodeUri_Async() {
         try {
+
             final CompletableFuture<URI> uriFuture = authorizationCodeUriRequest.executeAsync();
 
             final URI uri = uriFuture.join();
 
-            System.out.println("URI: " + uri.toString());
+            return uri.toString();
         } catch (CompletionException e) {
+
             System.out.println("Error: " + e.getCause().getMessage());
+
+            return null;
         } catch (CancellationException e) {
+
             System.out.println("Async operation cancelled.");
+
+            return null;
         }
     }
 }
