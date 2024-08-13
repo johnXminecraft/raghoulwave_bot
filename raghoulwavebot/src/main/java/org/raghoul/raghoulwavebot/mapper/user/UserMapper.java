@@ -1,8 +1,8 @@
-package org.raghoul.raghoulwavebot.mapper;
+package org.raghoul.raghoulwavebot.mapper.user;
 
 import org.mapstruct.Mapper;
-import org.raghoul.raghoulwavebot.dto.UserDto;
-import org.raghoul.raghoulwavebot.model.User;
+import org.raghoul.raghoulwavebot.dto.user.UserDto;
+import org.raghoul.raghoulwavebot.model.user.User;
 
 import java.util.List;
 

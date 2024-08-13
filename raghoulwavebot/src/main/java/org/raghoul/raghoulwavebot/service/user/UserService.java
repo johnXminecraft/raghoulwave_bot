@@ -1,6 +1,6 @@
 package org.raghoul.raghoulwavebot.service.user;
 
-import org.raghoul.raghoulwavebot.dto.UserDto;
+import org.raghoul.raghoulwavebot.dto.user.UserDto;
 
 import java.util.List;
 

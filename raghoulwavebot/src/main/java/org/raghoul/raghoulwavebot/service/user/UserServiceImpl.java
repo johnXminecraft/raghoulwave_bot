@@ -2,9 +2,9 @@ package org.raghoul.raghoulwavebot.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.raghoul.raghoulwavebot.dto.UserDto;
-import org.raghoul.raghoulwavebot.mapper.UserMapper;
-import org.raghoul.raghoulwavebot.model.User;
+import org.raghoul.raghoulwavebot.dto.user.UserDto;
+import org.raghoul.raghoulwavebot.mapper.user.UserMapper;
+import org.raghoul.raghoulwavebot.model.user.User;
 import org.raghoul.raghoulwavebot.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;

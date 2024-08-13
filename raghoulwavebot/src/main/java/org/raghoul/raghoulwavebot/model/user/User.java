@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.model;
+package org.raghoul.raghoulwavebot.model.user;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -24,4 +24,6 @@ public class User {
     private String last;
     @NotNull
     private String lang;
+    @NotNull
+    private String state;
 }

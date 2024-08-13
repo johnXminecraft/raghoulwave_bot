@@ -2,8 +2,9 @@ package org.raghoul.raghoulwavebot.service.spotifywebapi;
 
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.hc.core5.http.ParseException;
+import org.raghoul.raghoulwavebot.dto.spotifyresponse.SpotifyResponseDTO;
+import org.raghoul.raghoulwavebot.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -25,6 +26,8 @@ import java.util.concurrent.CompletionException;
 @Component
 public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAuthorizationService {
 
+    private final UserService userService;
+
     private String clientId;
     private String clientSecret;
     private String redirectUriString;
@@ -32,17 +35,19 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
     private SpotifyApi spotifyApi;
     private AuthorizationCodeUriRequest authorizationCodeUriRequest;
     private AuthorizationCodeRequest authorizationCodeRequest;
-    private String code;
 
     @Autowired
     public SpotifyWebApiAuthorizationServiceImpl(
-            String clientId,
+            UserService userService, String clientId,
             String clientSecret,
             String redirectUriString
     ) {
+        this.userService = userService;
+
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUriString = redirectUriString;
+
         this.redirectUri = SpotifyHttpManager.makeUri(redirectUriString);
 
         spotifyApi = new SpotifyApi.Builder()
@@ -50,20 +55,17 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
                 .setClientSecret(clientSecret)
                 .setRedirectUri(redirectUri)
                 .build();
+    }
+
+    @Override
+    public String authorizationCodeUri_Sync(String state) {
 
         authorizationCodeUriRequest = spotifyApi.authorizationCodeUri()
                 .response_type("code")
                 .client_id(clientId)
                 .redirect_uri(redirectUri)
-                .state(RandomStringUtils.random(16, true, false))
+                .state(state)
                 .build();
-
-        authorizationCodeRequest = spotifyApi.authorizationCode(code)
-                .build();
-    }
-
-    @Override
-    public String authorizationCodeUri_Sync() {
 
         final URI uri = authorizationCodeUriRequest.execute();
 
@@ -71,7 +73,15 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
     }
 
     @Override
-    public String authorizationCodeUri_Async() {
+    public String authorizationCodeUri_Async(String state) {
+
+        authorizationCodeUriRequest = spotifyApi.authorizationCodeUri()
+                .response_type("code")
+                .client_id(clientId)
+                .redirect_uri(redirectUri)
+                .state(state)
+                .build();
+
         try {
 
             final CompletableFuture<URI> uriFuture = authorizationCodeUriRequest.executeAsync();
@@ -93,9 +103,12 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
     }
 
     @Override
-    public String authorizationCode_Sync() {
+    public String authorizationCode_Sync(SpotifyResponseDTO spotifyResponseDTO) {
 
         String refreshToken = "invalid refresh token";
+
+        authorizationCodeRequest = spotifyApi.authorizationCode(spotifyResponseDTO.getCode())
+                .build();
 
         try {
 

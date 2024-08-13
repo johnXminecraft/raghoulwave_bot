@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.dto;
+package org.raghoul.raghoulwavebot.dto.user;
 
 import lombok.*;
 
@@ -14,6 +14,7 @@ public class UserDto {
     private String first;
     private String last;
     private String lang;
+    private String state;
 
     public String toString() {
         return "\nUserDto(id=" + this.getId() +
@@ -21,6 +22,7 @@ public class UserDto {
                 ", tag=" + this.getTag() +
                 ", first=" + this.getFirst() +
                 ", last=" + this.getLast() +
-                ", lang=" + this.getLang() + ")\n";
+                ", lang=" + this.getLang() +
+                ", state=" + this.getState() + ")\n";
     }
 }
