@@ -33,65 +33,79 @@ public class TelegramBotServiceImpl implements TelegramBotService {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(incomingMessage.getChatId());
 
+        String messageText;
+
         if(Objects.equals(incomingMessage.getText(), "/start")) {
-
-            List<UserDto> userDtoList = userService.getAll();
-
-            if(
-                    userDtoList.stream()
-                            .anyMatch(userDto ->
-                                    Objects.equals(userDto.getTelegramId(), user.getId()
-            ))) {
-
-                UserDto userDto = userDtoList.stream()
-                        .filter(userDtoFromList ->
-                                        Objects.equals(userDtoFromList.getTelegramId(), user.getId()))
-                        .findFirst().get();
-
-                String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(
-                        userDto.getState()
-                );
-
-                messageToSend.setText("You are already registered :) \n" + redirectUriString);
-            }
-
-            else {
-
-                String state = RandomStringUtils.random(16, true, false);
-
-                UserDto newUser = UserDto.builder()
-                        .telegramId(user.getId())
-                        .tag(user.getUserName())
-                        .first(user.getFirstName())
-                        .last(user.getLastName())
-                        .lang(user.getLanguageCode())
-                        .state(state)
-                        .build();
-                userService.add(newUser);
-
-                String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(state);
-
-                messageToSend.setText("Registration is successful :) \n" +
-                        "In order to authorize with your Spotify account, " +
-                        "visit the following link. After that you will be " +
-                        "all ready to use this bot. Just type \"Ready\" " +
-                        "after visiting the link.\n" + redirectUriString);
-            }
+            messageText = startResponseMessage(user);
         }
 
         else if(
                 Objects.equals(incomingMessage.getText(), "getAll") &&
                         Objects.equals(Long.toString(user.getId()), administratorId)
         ) {
-            List<UserDto> userDtoList = userService.getAll();
-            String result = userDtoList.toString();
-            messageToSend.setText(result);
+            messageText = getAllResponseMessage();
         }
 
         else {
-            messageToSend.setText("meow");
+            messageText = fillerResponseMessage();
         }
 
+        messageToSend.setText(messageText);
+
         return messageToSend;
+    }
+
+    private String startResponseMessage(User user) {
+
+        List<UserDto> userDtoList = userService.getAll();
+
+        if(
+                userDtoList.stream()
+                        .anyMatch(userDto ->
+                                Objects.equals(userDto.getTelegramId(), user.getId()
+                                ))) {
+            UserDto userDto = userDtoList.stream()
+                    .filter(userDtoFromList ->
+                            Objects.equals(userDtoFromList.getTelegramId(), user.getId()))
+                    .findFirst().get();
+
+            String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(
+                    userDto.getState()
+            );
+
+            return "You are already registered :) \n" + redirectUriString;
+        }
+
+        else {
+
+            String state = RandomStringUtils.random(16, true, false);
+
+            UserDto newUser = UserDto.builder()
+                    .telegramId(user.getId())
+                    .tag(user.getUserName())
+                    .first(user.getFirstName())
+                    .last(user.getLastName())
+                    .lang(user.getLanguageCode())
+                    .state(state)
+                    .build();
+            userService.add(newUser);
+
+            String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(state);
+
+            return "Registration is successful :) \n" +
+                    "In order to authorize with your Spotify account, " +
+                    "visit the following link. After that you will be " +
+                    "all ready to use this bot. Just type \"Ready\" " +
+                    "after visiting the link.\n" + redirectUriString;
+        }
+    }
+
+    private String getAllResponseMessage() {
+        List<UserDto> userDtoList = userService.getAll();
+        return userDtoList.toString();
+    }
+
+    private String fillerResponseMessage() {
+        return "meow";
     }
 }
