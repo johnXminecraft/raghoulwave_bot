@@ -15,6 +15,7 @@ public class UserDto {
     private String last;
     private String lang;
     private String state;
+    private String refreshToken;
 
     public String toString() {
         return "\nUserDto(id=" + this.getId() +
@@ -23,6 +24,8 @@ public class UserDto {
                 ", first=" + this.getFirst() +
                 ", last=" + this.getLast() +
                 ", lang=" + this.getLang() +
-                ", state=" + this.getState() + ")\n";
+                ", state=" + this.getState() +
+                ", refreshToken=" + this.getRefreshToken() +
+                ")\n";
     }
 }

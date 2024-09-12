@@ -57,4 +57,26 @@ public class UserServiceImpl implements UserService {
 
         userRepository.deleteById(id);
     }
+
+    @Override
+    public UserDto getByTelegramId(Long telegramId) {
+
+        List<User> usersByTelegramId = userRepository.findByTelegramId(telegramId);
+
+        User user = usersByTelegramId.getFirst();
+
+        return userMapper.userToUserDto(user);
+    }
+
+    @Override
+    public UserDto getByState(String state) {
+
+        List<User> usersByState = userRepository.findByState(state);
+
+        System.out.println(usersByState.toString());
+
+        User user = usersByState.getFirst();
+
+        return userMapper.userToUserDto(user);
+    }
 }

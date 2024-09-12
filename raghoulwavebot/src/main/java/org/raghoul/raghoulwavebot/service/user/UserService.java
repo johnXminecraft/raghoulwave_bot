@@ -10,4 +10,6 @@ public interface UserService {
     void add(UserDto userDto);
     void update(UserDto userDto);
     void deleteById(Integer id);
+    UserDto getByTelegramId(Long telegramId);
+    UserDto getByState(String state);
 }

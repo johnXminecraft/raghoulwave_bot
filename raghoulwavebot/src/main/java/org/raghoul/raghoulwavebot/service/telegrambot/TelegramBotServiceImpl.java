@@ -90,8 +90,11 @@ public class TelegramBotServiceImpl implements TelegramBotService {
                     .last(user.getLastName())
                     .lang(user.getLanguageCode())
                     .state(state)
+                    .refreshToken("IRT")
                     .build();
             userService.add(newUser);
+
+            System.out.println(newUser.toString());
 
             String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(state);
 

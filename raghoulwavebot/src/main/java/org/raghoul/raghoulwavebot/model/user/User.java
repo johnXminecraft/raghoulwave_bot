@@ -26,4 +26,5 @@ public class User {
     private String lang;
     @NotNull
     private String state;
+    private String refreshToken;
 }

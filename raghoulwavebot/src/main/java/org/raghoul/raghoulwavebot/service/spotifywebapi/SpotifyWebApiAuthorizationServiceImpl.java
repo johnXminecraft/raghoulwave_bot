@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;
 import org.raghoul.raghoulwavebot.dto.spotifyresponse.SpotifyResponseDTO;
+import org.raghoul.raghoulwavebot.dto.user.UserDto;
 import org.raghoul.raghoulwavebot.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -103,9 +104,10 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
     }
 
     @Override
-    public String authorizationCode_Sync(SpotifyResponseDTO spotifyResponseDTO) {
+    public void authorizationCode_Sync(SpotifyResponseDTO spotifyResponseDTO) {
 
-        String refreshToken = "invalid refresh token";
+        String refreshToken = "IRT";
+        String state = spotifyResponseDTO.getState();
 
         authorizationCodeRequest = spotifyApi.authorizationCode(spotifyResponseDTO.getCode())
                 .build();
@@ -121,11 +123,11 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
         } catch (IOException | SpotifyWebApiException | ParseException e) {
 
             System.out.println("Error: " + e.getMessage());
-
-            return refreshToken;
         }
 
-        return refreshToken;
+        UserDto userDto = userService.getByState(state);
+        userDto.setRefreshToken(refreshToken);
+        userService.update(userDto);
     }
 
     @Override
