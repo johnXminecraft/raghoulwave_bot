@@ -94,8 +94,6 @@ public class TelegramBotServiceImpl implements TelegramBotService {
                     .build();
             userService.add(newUser);
 
-            System.out.println(newUser.toString());
-
             String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(state);
 
             return "Registration is successful :) \n" +
