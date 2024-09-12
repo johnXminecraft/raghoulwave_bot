@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -64,10 +65,12 @@ public class TelegramBotServiceImpl implements TelegramBotService {
                         .anyMatch(userDto ->
                                 Objects.equals(userDto.getTelegramId(), user.getId()
                                 ))) {
-            UserDto userDto = userDtoList.stream()
+            Optional<UserDto> userDtoOptional = userDtoList.stream()
                     .filter(userDtoFromList ->
                             Objects.equals(userDtoFromList.getTelegramId(), user.getId()))
-                    .findFirst().get();
+                    .findFirst();
+
+            UserDto userDto = userDtoOptional.orElseGet(UserDto::new);
 
             String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(
                     userDto.getState()
