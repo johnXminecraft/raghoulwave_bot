@@ -34,29 +34,29 @@ public class TelegramBotServiceImpl implements TelegramBotService {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(incomingMessage.getChatId());
 
-        String messageText;
-
         if(Objects.equals(incomingMessage.getText(), "/start")) {
-            messageText = startResponseMessage(user);
+            messageToSend = startResponseMessage(user, messageToSend);
+        }
+
+        else if(Objects.equals(incomingMessage.getText(), "Ready")) {
+            messageToSend = readyResponseMessage(user, messageToSend);
         }
 
         else if(
                 Objects.equals(incomingMessage.getText(), "getAll") &&
                         Objects.equals(Long.toString(user.getId()), administratorId)
         ) {
-            messageText = getAllResponseMessage();
+            messageToSend = getAllResponseMessage(messageToSend);
         }
 
         else {
-            messageText = fillerResponseMessage();
+            messageToSend = fillerResponseMessage(messageToSend);
         }
-
-        messageToSend.setText(messageText);
 
         return messageToSend;
     }
 
-    private String startResponseMessage(User user) {
+    private SendMessage startResponseMessage(User user, SendMessage messageToSend) {
 
         List<UserDto> userDtoList = userService.getAll();
 
@@ -76,7 +76,9 @@ public class TelegramBotServiceImpl implements TelegramBotService {
                     userDto.getState()
             );
 
-            return "You are already registered :) \n" + redirectUriString;
+            messageToSend.setText("You are already registered :) \n" + redirectUriString);
+
+            return messageToSend;
         }
 
         else {
@@ -96,20 +98,35 @@ public class TelegramBotServiceImpl implements TelegramBotService {
 
             String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(state);
 
-            return "Registration is successful :) \n" +
+            messageToSend.setText("Registration is successful :) \n" +
                     "In order to authorize with your Spotify account, " +
                     "visit the following link. After that you will be " +
                     "all ready to use this bot. Just type \"Ready\" " +
-                    "after visiting the link.\n" + redirectUriString;
+                    "after visiting the link.\n" + redirectUriString);
+
+            return messageToSend;
         }
     }
 
-    private String getAllResponseMessage() {
-        List<UserDto> userDtoList = userService.getAll();
-        return userDtoList.toString();
+    private SendMessage readyResponseMessage(User user, SendMessage messageToSend) {
+        UserDto userDto = userService.getByTelegramId(user.getId());
+        if(!Objects.equals(userDto.getRefreshToken(), "IRT")) {
+            messageToSend.setText("You are fully ready to start experiencing Spotify from here :)");
+            return messageToSend;
+        } else {
+            messageToSend.setText("Something went wrong, try registering again :(");
+            return messageToSend;
+        }
     }
 
-    private String fillerResponseMessage() {
-        return "meow";
+    private SendMessage getAllResponseMessage(SendMessage messageToSend) {
+        List<UserDto> userDtoList = userService.getAll();
+        messageToSend.setText(userDtoList.toString());
+        return messageToSend;
+    }
+
+    private SendMessage fillerResponseMessage(SendMessage messageToSend) {
+        messageToSend.setText("meow");
+        return messageToSend;
     }
 }

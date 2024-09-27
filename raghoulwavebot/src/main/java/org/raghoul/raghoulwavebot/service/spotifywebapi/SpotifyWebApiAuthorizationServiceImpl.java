@@ -12,10 +12,12 @@ import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.SpotifyHttpManager;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCredentials;
+import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -27,6 +29,11 @@ import java.util.concurrent.CompletionException;
 @Component
 public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAuthorizationService {
 
+    /*TODO
+    *  Async methods
+    *  Custom exceptions for try-catch checks
+    *  Perhaps some cosmetic BS */
+
     private final UserService userService;
 
     private String clientId;
@@ -36,6 +43,7 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
     private SpotifyApi spotifyApi;
     private AuthorizationCodeUriRequest authorizationCodeUriRequest;
     private AuthorizationCodeRequest authorizationCodeRequest;
+    private AuthorizationCodeRefreshRequest authorizationCodeRefreshRequest;
 
     @Autowired
     public SpotifyWebApiAuthorizationServiceImpl(
@@ -136,8 +144,25 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
     }
 
     @Override
-    public String authorizationCodeRefresh_Sync() {
-        return "";
+    public String authorizationCodeRefresh_Sync(UserDto user) {
+
+        if(!Objects.equals(user.getRefreshToken(), "IRT")) {
+            spotifyApi.setRefreshToken(user.getRefreshToken());
+        } else {
+            return "CNGRT";
+        }
+
+        authorizationCodeRefreshRequest = spotifyApi.authorizationCodeRefresh().build();
+
+        try {
+            final AuthorizationCodeCredentials authorizationCodeCredentials = authorizationCodeRefreshRequest.execute();
+
+            return authorizationCodeCredentials.getAccessToken();
+        } catch(IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println(e.getMessage());
+
+            return "CNGAT";
+        }
     }
 
     @Override
