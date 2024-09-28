@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.service.spotifywebapi;
+package org.raghoul.raghoulwavebot.service.spotifywebapiauthorization;
 
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +74,7 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
                 .client_id(clientId)
                 .redirect_uri(redirectUri)
                 .state(state)
+                .scope("user-read-recently-played")
                 .build();
 
         final URI uri = authorizationCodeUriRequest.execute();

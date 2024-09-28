@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.raghoul.raghoulwavebot.dto.spotifyresponse.SpotifyResponseDTO;
 import org.raghoul.raghoulwavebot.mapper.spotifyresponse.SpotifyResponseMapper;
 import org.raghoul.raghoulwavebot.model.spotifyresponse.SpotifyResponse;
-import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiAuthorizationService;
+import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebApiAuthorizationService;
 import org.raghoul.raghoulwavebot.telegrambotapi.RaghoulwaveTelegramBot;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.service.spotifywebapi;
+package org.raghoul.raghoulwavebot.service.spotifywebapiauthorization;
 
 import org.raghoul.raghoulwavebot.dto.spotifyresponse.SpotifyResponseDTO;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;

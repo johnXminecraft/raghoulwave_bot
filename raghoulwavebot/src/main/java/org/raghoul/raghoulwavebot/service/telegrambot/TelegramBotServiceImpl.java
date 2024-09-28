@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
-import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiAuthorizationService;
+import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiService;
+import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebApiAuthorizationService;
 import org.raghoul.raghoulwavebot.service.user.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class TelegramBotServiceImpl implements TelegramBotService {
 
     private final UserService userService;
     private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
+    private final SpotifyWebApiService spotifyWebApiService;
     @Value("${raghoulwavebot.config.administrator.id}")
     private String administratorId;
 
@@ -33,6 +35,8 @@ public class TelegramBotServiceImpl implements TelegramBotService {
 
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(incomingMessage.getChatId());
+
+        System.out.println("meow");
 
         if(Objects.equals(incomingMessage.getText(), "/start")) {
             messageToSend = startResponseMessage(user, messageToSend);
@@ -47,6 +51,10 @@ public class TelegramBotServiceImpl implements TelegramBotService {
                         Objects.equals(Long.toString(user.getId()), administratorId)
         ) {
             messageToSend = getAllResponseMessage(messageToSend);
+        }
+
+        else if(Objects.equals(incomingMessage.getText(), "Recent tracks")) {
+            messageToSend = getRecentlyPlayedTracksResponseMessage(user, messageToSend);
         }
 
         else {
@@ -122,6 +130,12 @@ public class TelegramBotServiceImpl implements TelegramBotService {
     private SendMessage getAllResponseMessage(SendMessage messageToSend) {
         List<UserDto> userDtoList = userService.getAll();
         messageToSend.setText(userDtoList.toString());
+        return messageToSend;
+    }
+
+    private SendMessage getRecentlyPlayedTracksResponseMessage(User user, SendMessage messageToSend) {
+        UserDto userDto = userService.getByTelegramId(user.getId());
+        messageToSend.setText(spotifyWebApiService.getRecentlyPlayedTracks(userDto));
         return messageToSend;
     }
 
