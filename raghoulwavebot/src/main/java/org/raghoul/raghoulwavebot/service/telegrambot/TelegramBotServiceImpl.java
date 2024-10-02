@@ -35,8 +35,7 @@ public class TelegramBotServiceImpl implements TelegramBotService {
 
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(incomingMessage.getChatId());
-
-        System.out.println("meow");
+        messageToSend.enableHtml(true);
 
         if(Objects.equals(incomingMessage.getText(), "/start")) {
             messageToSend = startResponseMessage(user, messageToSend);
@@ -84,7 +83,9 @@ public class TelegramBotServiceImpl implements TelegramBotService {
                     userDto.getState()
             );
 
-            messageToSend.setText("You are already registered :) \n" + redirectUriString);
+            String hyperLink = "<a href='" + redirectUriString + "'>Register</a>";
+
+            messageToSend.setText("You are already registered :) \n\n" + hyperLink);
 
             return messageToSend;
         }
@@ -106,23 +107,24 @@ public class TelegramBotServiceImpl implements TelegramBotService {
 
             String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(state);
 
+            String hyperLink = "<a href='" + redirectUriString + "'>this link</a>";
+
             messageToSend.setText("Registration is successful :) \n" +
                     "In order to authorize with your Spotify account, " +
-                    "visit the following link. After that you will be " +
+                    "visit " + hyperLink + ". After that you will be " +
                     "all ready to use this bot. Just type \"Ready\" " +
-                    "after visiting the link.\n" + redirectUriString);
+                    "after visiting the link.");
 
             return messageToSend;
         }
     }
 
     private SendMessage readyResponseMessage(User user, SendMessage messageToSend) {
-        UserDto userDto = userService.getByTelegramId(user.getId());
-        if(!Objects.equals(userDto.getRefreshToken(), "IRT")) {
+        if(isUserRegistered(user)) {
             messageToSend.setText("You are fully ready to start experiencing Spotify from here :)");
             return messageToSend;
         } else {
-            messageToSend.setText("Something went wrong, try registering again :(");
+            messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
             return messageToSend;
         }
     }
@@ -134,13 +136,27 @@ public class TelegramBotServiceImpl implements TelegramBotService {
     }
 
     private SendMessage getRecentlyPlayedTracksResponseMessage(User user, SendMessage messageToSend) {
-        UserDto userDto = userService.getByTelegramId(user.getId());
-        messageToSend.setText(spotifyWebApiService.getRecentlyPlayedTracks(userDto));
-        return messageToSend;
+        if (isUserRegistered(user)) {
+            UserDto userDto = userService.getByTelegramId(user.getId());
+            messageToSend.setText(spotifyWebApiService.getRecentlyPlayedTracks(userDto));
+            return messageToSend;
+        } else {
+            messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
+            return messageToSend;
+        }
     }
 
     private SendMessage fillerResponseMessage(SendMessage messageToSend) {
         messageToSend.setText("meow");
         return messageToSend;
+    }
+
+    private boolean isUserRegistered(User user) {
+        try {
+            userService.getByTelegramId(user.getId());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
