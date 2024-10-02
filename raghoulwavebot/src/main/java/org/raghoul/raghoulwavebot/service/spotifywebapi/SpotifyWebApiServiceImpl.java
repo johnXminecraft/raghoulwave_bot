@@ -12,14 +12,12 @@ import se.michaelthelin.spotify.model_objects.specification.PagingCursorbased;
 import se.michaelthelin.spotify.model_objects.specification.PlayHistory;
 import se.michaelthelin.spotify.requests.data.player.GetCurrentUsersRecentlyPlayedTracksRequest;
 import java.io.IOException;
+import java.util.Date;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
-
-    /*TODO
-    *  Fix getRecentlyPlayedTracks()*/
 
     private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
 
@@ -28,22 +26,38 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
 
         String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
 
-        final SpotifyApi spotifyApi = new SpotifyApi.Builder()
+        SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
 
-        final GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest =
+        long currentDate = new Date().getTime();
+
+        GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest =
                 spotifyApi.getCurrentUsersRecentlyPlayedTracks()
-                        .limit(5)
+                        .before(new Date(currentDate))
+                        .limit(10)
                         .build();
 
         try {
-            final PagingCursorbased<PlayHistory> playHistoryPagingCursorbased =
+            PagingCursorbased<PlayHistory> playHistoryPagingCursorbased =
                     getCurrentUsersRecentlyPlayedTracksRequest.execute();
 
-            System.out.println(playHistoryPagingCursorbased.getTotal());
+            PlayHistory[] playHistory = playHistoryPagingCursorbased.getItems();
 
-            return playHistoryPagingCursorbased.toString();
+            StringBuilder outputBuilder = new StringBuilder();
+
+            for(PlayHistory playHistoryItem : playHistory) {
+                outputBuilder
+                        .append("<a href='")
+                        .append(playHistoryItem.getTrack().getExternalUrls().get("spotify"))
+                        .append("'>")
+                        .append(playHistoryItem.getTrack().getName())
+                        .append("</a>\n");
+            }
+
+            String output = outputBuilder.toString();
+
+            return "Recent tracks:\n\n" + output;
         } catch (SpotifyWebApiException | IOException | ParseException e) {
             System.out.println(e.getMessage());
 
