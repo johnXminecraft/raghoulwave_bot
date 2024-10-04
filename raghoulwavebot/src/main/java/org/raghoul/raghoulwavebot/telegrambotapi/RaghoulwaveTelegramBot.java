@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.raghoul.raghoulwavebot.service.telegrambot.TelegramBotService;
+import org.raghoul.raghoulwavebot.service.telegrambot.handleupdate.HandleUpdateService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -25,22 +25,22 @@ public class RaghoulwaveTelegramBot extends SpringWebhookBot {
     private String botPath;
     private String botUsername;
     private String botToken;
-    private final TelegramBotService telegramBotService;
+    private final HandleUpdateService handleUpdateService;
 
     public RaghoulwaveTelegramBot(
             DefaultBotOptions options,
             SetWebhook setWebhook,
             String botToken,
-            TelegramBotService telegramBotService
+            HandleUpdateService handleUpdateService
     ) {
         super(options, setWebhook, botToken);
-        this.telegramBotService = telegramBotService;
+        this.handleUpdateService = handleUpdateService;
     }
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
 
-        return telegramBotService.handleUpdate(update);
+        return handleUpdateService.handleUpdate(update);
     }
 
     @Override
