@@ -48,12 +48,15 @@ public class MenuServiceImpl implements MenuService {
 
         KeyboardRow recentTracks = new KeyboardRow();
         KeyboardRow savedTracks = new KeyboardRow();
+        KeyboardRow currentTrack = new KeyboardRow();
 
         recentTracks.add(new KeyboardButton("Recent tracks"));
         savedTracks.add(new KeyboardButton("Saved tracks"));
+        currentTrack.add(new KeyboardButton("Current track"));
 
         keyboard.add(recentTracks);
         keyboard.add(savedTracks);
+        keyboard.add(currentTrack);
 
         replyKeyboardMarkup.setKeyboard(keyboard);
 
