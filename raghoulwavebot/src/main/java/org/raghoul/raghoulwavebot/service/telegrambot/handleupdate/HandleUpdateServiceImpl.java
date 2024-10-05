@@ -67,6 +67,10 @@ public class HandleUpdateServiceImpl implements HandleUpdateService {
             messageToSend = responseMessageService.getSavedTracksResponseMessage(user, messageToSend);
         }
 
+        else if(Objects.equals(incomingMessage.getText(), "Current track")) {
+            messageToSend = responseMessageService.getCurrentTrackResponseMessage(user, messageToSend);
+        }
+
         else {
             messageToSend = responseMessageService.fillerResponseMessage(messageToSend);
         }
