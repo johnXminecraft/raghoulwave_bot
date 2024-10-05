@@ -74,7 +74,7 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
                 .client_id(clientId)
                 .redirect_uri(redirectUri)
                 .state(state)
-                .scope("user-read-recently-played")
+                .scope("user-read-recently-played,user-library-read")
                 .build();
 
         final URI uri = authorizationCodeUriRequest.execute();
