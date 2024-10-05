@@ -123,6 +123,17 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     }
 
     @Override
+    public SendMessage getCurrentTrackResponseMessage(User user, SendMessage messageToSend) {
+        if (isUserRegistered(user)) {
+            UserDto userDto = userService.getByTelegramId(user.getId());
+            messageToSend.setText(spotifyWebApiService.getCurrentTrack(userDto));
+        } else {
+            messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
+        }
+        return messageToSend;
+    }
+
+    @Override
     public SendMessage fillerResponseMessage(SendMessage messageToSend) {
         messageToSend.setText("meow");
         return messageToSend;

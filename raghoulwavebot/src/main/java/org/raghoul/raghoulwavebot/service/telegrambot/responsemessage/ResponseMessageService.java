@@ -9,5 +9,6 @@ public interface ResponseMessageService {
     SendMessage getAllResponseMessage(SendMessage messageToSend);
     SendMessage getRecentlyPlayedTracksResponseMessage(User user, SendMessage messageToSend);
     SendMessage getSavedTracksResponseMessage(User user, SendMessage messageToSend);
+    SendMessage getCurrentTrackResponseMessage(User user, SendMessage messageToSend);
     SendMessage fillerResponseMessage(SendMessage messageToSend);
 }
