@@ -9,21 +9,58 @@ import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebA
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
+import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 import se.michaelthelin.spotify.model_objects.specification.Paging;
 import se.michaelthelin.spotify.model_objects.specification.PagingCursorbased;
 import se.michaelthelin.spotify.model_objects.specification.PlayHistory;
 import se.michaelthelin.spotify.model_objects.specification.SavedTrack;
 import se.michaelthelin.spotify.requests.data.library.GetUsersSavedTracksRequest;
 import se.michaelthelin.spotify.requests.data.player.GetCurrentUsersRecentlyPlayedTracksRequest;
+import se.michaelthelin.spotify.requests.data.player.GetUsersCurrentlyPlayingTrackRequest;
 import java.io.IOException;
 import java.util.Date;
 
+@SuppressWarnings("StringBufferReplaceableByString")
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
 
     private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
+
+    @Override
+    public String getCurrentTrack(UserDto user) {
+        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
+
+        SpotifyApi spotifyApi = new SpotifyApi.Builder()
+                .setAccessToken(accessToken)
+                .build();
+
+        GetUsersCurrentlyPlayingTrackRequest request = spotifyApi.getUsersCurrentlyPlayingTrack()
+                .additionalTypes("track")
+                .build();
+
+        try {
+            CurrentlyPlaying currentlyPlaying = request.execute();
+
+            StringBuilder outputBuilder = new StringBuilder();
+
+            outputBuilder
+                    .append("<a href='")
+                    .append(currentlyPlaying.getItem().getExternalUrls().get("spotify"))
+                    .append("'>")
+                    .append(currentlyPlaying.getItem().getName())
+                    .append("</a>\n");
+
+            String output = outputBuilder.toString();
+
+            return "Current track:\n\n" + output;
+        } catch (SpotifyWebApiException | IOException | ParseException e) {
+            System.out.println(e.getMessage());
+
+            return "Error";
+        }
+    }
 
     @Override
     public String getSavedTracks(UserDto user) {
@@ -77,8 +114,7 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
 
         long currentDate = new Date().getTime();
 
-        GetCurrentUsersRecentlyPlayedTracksRequest request =
-                spotifyApi.getCurrentUsersRecentlyPlayedTracks()
+        GetCurrentUsersRecentlyPlayedTracksRequest request = spotifyApi.getCurrentUsersRecentlyPlayedTracks()
                         .before(new Date(currentDate))
                         .limit(10)
                         .build();
