@@ -17,7 +17,7 @@ import java.util.List;
 public class MenuServiceImpl implements MenuService {
 
     @Override
-    public InlineKeyboardMarkup startMenu(String redirectUriString) {
+    public InlineKeyboardMarkup startMenu() {
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
@@ -37,7 +37,13 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public ReplyKeyboardMarkup readyMenu() {
+    public ReplyKeyboardMarkup getMenu(String botState, String command) {
+        return (command.equals("Current track") && botState.equals("ready"))
+                ? currentTrackMenu()
+                : readyMenu();
+    }
+
+    private ReplyKeyboardMarkup readyMenu() {
 
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
@@ -51,12 +57,35 @@ public class MenuServiceImpl implements MenuService {
         KeyboardRow currentTrack = new KeyboardRow();
 
         recentTracks.add(new KeyboardButton("Recent tracks"));
-        savedTracks.add(new KeyboardButton("Saved tracks"));
+        savedTracks.add(new KeyboardButton("Liked tracks"));
         currentTrack.add(new KeyboardButton("Current track"));
 
         keyboard.add(recentTracks);
         keyboard.add(savedTracks);
         keyboard.add(currentTrack);
+
+        replyKeyboardMarkup.setKeyboard(keyboard);
+
+        return replyKeyboardMarkup;
+    }
+
+    private ReplyKeyboardMarkup currentTrackMenu() {
+
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(false);
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+
+        KeyboardRow download = new KeyboardRow();
+        KeyboardRow back = new KeyboardRow();
+
+        download.add(new KeyboardButton("Download"));
+        back.add(new KeyboardButton("Back"));
+
+        keyboard.add(download);
+        keyboard.add(back);
 
         replyKeyboardMarkup.setKeyboard(keyboard);
 

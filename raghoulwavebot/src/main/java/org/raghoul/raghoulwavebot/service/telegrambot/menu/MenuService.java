@@ -4,6 +4,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
 public interface MenuService {
-    InlineKeyboardMarkup startMenu(String redirectUriString);
-    ReplyKeyboardMarkup readyMenu();
+    InlineKeyboardMarkup startMenu();
+    ReplyKeyboardMarkup getMenu(String botState, String command);
 }

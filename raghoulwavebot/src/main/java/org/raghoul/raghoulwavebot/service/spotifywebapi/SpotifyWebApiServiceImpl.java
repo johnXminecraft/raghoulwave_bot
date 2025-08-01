@@ -19,6 +19,7 @@ import se.michaelthelin.spotify.requests.data.player.GetCurrentUsersRecentlyPlay
 import se.michaelthelin.spotify.requests.data.player.GetUsersCurrentlyPlayingTrackRequest;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Objects;
 
 @SuppressWarnings("StringBufferReplaceableByString")
 @Service
@@ -43,22 +44,26 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
         try {
             CurrentlyPlaying currentlyPlaying = request.execute();
 
-            StringBuilder outputBuilder = new StringBuilder();
+            if(Objects.isNull(currentlyPlaying)) {
+                throw new SpotifyWebApiException("Nothing is playing at the moment");
+            } else {
+                StringBuilder outputBuilder = new StringBuilder();
 
-            outputBuilder
-                    .append("<a href='")
-                    .append(currentlyPlaying.getItem().getExternalUrls().get("spotify"))
-                    .append("'>")
-                    .append(currentlyPlaying.getItem().getName())
-                    .append("</a>\n");
+                outputBuilder
+                        .append("<a href='")
+                        .append(currentlyPlaying.getItem().getExternalUrls().get("spotify"))
+                        .append("'>")
+                        .append(currentlyPlaying.getItem().getName())
+                        .append("</a>\n");
 
-            String output = outputBuilder.toString();
+                String output = outputBuilder.toString();
 
-            return "Current track:\n\n" + output;
+                return "Current track:\n\n" + output;
+            }
         } catch (SpotifyWebApiException | IOException | ParseException e) {
             System.out.println(e.getMessage());
 
-            return "Error";
+            return e.getMessage();
         }
     }
 

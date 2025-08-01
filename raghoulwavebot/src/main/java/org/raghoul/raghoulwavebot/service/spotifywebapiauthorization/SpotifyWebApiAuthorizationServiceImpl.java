@@ -136,6 +136,7 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
 
         UserDto userDto = userService.getByState(state);
         userDto.setRefreshToken(refreshToken);
+        userDto.setBotState("ready");
         userService.update(userDto);
     }
 

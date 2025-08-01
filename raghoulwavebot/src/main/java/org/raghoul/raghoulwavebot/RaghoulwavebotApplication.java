@@ -9,5 +9,4 @@ public class RaghoulwavebotApplication {
     public static void main(String[] args) {
         SpringApplication.run(RaghoulwavebotApplication.class, args);
     }
-
 }

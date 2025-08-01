@@ -16,6 +16,7 @@ public class UserDto {
     private String lang;
     private String state;
     private String refreshToken;
+    private String botState;
 
     public String toString() {
         return "\nUserDto(id=" + this.getId() +
@@ -26,6 +27,15 @@ public class UserDto {
                 ", lang=" + this.getLang() +
                 ", state=" + this.getState() +
                 ", refreshToken=" + this.getRefreshToken() +
+                ", botState=" + this.getBotState() +
                 ")\n";
+    }
+
+    public String getBotState() {
+        // The fact tha I'm doing this check is MEGA bad
+        if(botState==null) {
+            botState = "ready";
+        }
+        return botState;
     }
 }

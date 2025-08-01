@@ -27,4 +27,6 @@ public class User {
     @NotNull
     private String state;
     private String refreshToken;
+    @NotNull
+    private String botState;
 }
