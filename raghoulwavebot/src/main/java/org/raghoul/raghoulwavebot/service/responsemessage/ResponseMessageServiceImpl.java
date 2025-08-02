@@ -21,9 +21,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ResponseMessageServiceImpl implements ResponseMessageService {
 
-    // TODO:
-    // fix html inside the messages
-
     private final UserService userService;
     private final MenuService menuService;
     private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
