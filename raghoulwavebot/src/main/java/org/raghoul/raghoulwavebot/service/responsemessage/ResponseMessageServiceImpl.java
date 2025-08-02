@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.service.telegrambot.responsemessage;
+package org.raghoul.raghoulwavebot.service.responsemessage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,7 +6,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
 import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiService;
 import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebApiAuthorizationService;
-import org.raghoul.raghoulwavebot.service.telegrambot.menu.MenuService;
+import org.raghoul.raghoulwavebot.service.menu.MenuService;
 import org.raghoul.raghoulwavebot.service.user.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,6 @@ import java.util.Optional;
 public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     // TODO:
-    // fix null botState bug
     // fix html inside the messages
 
     private final UserService userService;
@@ -55,11 +54,10 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     }
 
     public SendMessage getFillerResponseMessage(User user) {
-        System.out.println(userService.getByTelegramId(user.getId()).toString());
-        System.out.println(userService.getAll().toString());
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
         messageToSend.setText("Didn't catch that, sorry.");
+        messageToSend.enableHtml(true);
         return messageToSend;
     }
 
@@ -99,6 +97,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         }
         messageToSend.setChatId(user.getId());
         messageToSend.setReplyMarkup(menuService.startMenu());
+        messageToSend.enableHtml(true);
         return messageToSend;
     }
 
@@ -111,6 +110,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
         }
+        messageToSend.enableHtml(true);
         return messageToSend;
     }
 
@@ -126,6 +126,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
         }
+        messageToSend.enableHtml(true);
         return messageToSend;
     }
 
@@ -134,6 +135,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         List<UserDto> userDtoList = userService.getAll();
         messageToSend.setChatId(user.getId());
         messageToSend.setText(userDtoList.toString());
+        messageToSend.enableHtml(true);
         return messageToSend;
     }
 
@@ -146,6 +148,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
         }
+        messageToSend.enableHtml(true);
         return messageToSend;
     }
 
@@ -158,6 +161,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
         }
+        messageToSend.enableHtml(true);
         return messageToSend;
     }
 
@@ -173,6 +177,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
         }
+        messageToSend.enableHtml(true);
         return messageToSend;
     }
 
@@ -180,6 +185,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
         messageToSend.setText("This option is currently unavailable");
+        messageToSend.enableHtml(true);
         return messageToSend;
     }
 

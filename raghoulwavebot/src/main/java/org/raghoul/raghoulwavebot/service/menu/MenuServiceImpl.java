@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.service.telegrambot.menu;
+package org.raghoul.raghoulwavebot.service.menu;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

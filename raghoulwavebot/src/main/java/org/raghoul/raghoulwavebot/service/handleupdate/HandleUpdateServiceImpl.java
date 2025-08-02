@@ -1,8 +1,8 @@
-package org.raghoul.raghoulwavebot.service.telegrambot.handleupdate;
+package org.raghoul.raghoulwavebot.service.handleupdate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.raghoul.raghoulwavebot.service.telegrambot.responsemessage.ResponseMessageService;
+import org.raghoul.raghoulwavebot.service.responsemessage.ResponseMessageService;
 import org.raghoul.raghoulwavebot.service.user.UserService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;

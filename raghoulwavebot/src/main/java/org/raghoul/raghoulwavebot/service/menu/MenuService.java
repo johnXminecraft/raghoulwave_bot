@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.service.telegrambot.menu;
+package org.raghoul.raghoulwavebot.service.menu;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;

@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.raghoul.raghoulwavebot.service.telegrambot.handleupdate.HandleUpdateService;
+import org.raghoul.raghoulwavebot.service.handleupdate.HandleUpdateService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;

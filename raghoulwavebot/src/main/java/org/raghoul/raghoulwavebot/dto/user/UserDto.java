@@ -30,12 +30,4 @@ public class UserDto {
                 ", botState=" + this.getBotState() +
                 ")\n";
     }
-
-    public String getBotState() {
-        // The fact tha I'm doing this check is MEGA bad
-        if(botState==null) {
-            botState = "ready";
-        }
-        return botState;
-    }
 }
