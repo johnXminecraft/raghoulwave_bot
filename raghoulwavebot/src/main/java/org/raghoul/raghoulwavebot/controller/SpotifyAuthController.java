@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 @Slf4j
 @RestController
@@ -21,20 +22,20 @@ public class SpotifyAuthController {
     private final SpotifyResponseMapper spotifyResponseMapper;
 
     @GetMapping()
-    public String getCode(
+    public ModelAndView getCode(
             @RequestParam(name = "code") String code,
             @RequestParam(name = "state") String state
     ) {
-
         SpotifyResponseDTO spotifyResponseDTO = spotifyResponseMapper.spotifyResponseToSpotifyResponseDTO(
                 SpotifyResponse.builder()
                         .code(code)
                         .state(state)
                         .build()
         );
-
         spotifyWebApiAuthorizationService.authorizationCode_Sync(spotifyResponseDTO);
 
-        return "<a href=\"https://t.me/raghoulwave_bot\">Back to Telegram</a>";
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("back_to_telegram");
+        return modelAndView;
     }
 }

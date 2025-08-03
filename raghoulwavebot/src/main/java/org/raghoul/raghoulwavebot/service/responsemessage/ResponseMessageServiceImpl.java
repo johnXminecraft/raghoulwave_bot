@@ -30,7 +30,6 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     @Override
     public SendMessage getResponseMessage(User user, String botState, String command) {
-        System.out.println(botState + " " + command);
         return (Objects.equals(command, "/start"))
                 ? startResponseMessage(user)
                 : (Objects.equals(botState, "ready") && Objects.equals(command, "Ready"))

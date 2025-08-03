@@ -73,8 +73,6 @@ public class UserServiceImpl implements UserService {
 
         List<User> usersByState = userRepository.findByState(state);
 
-        System.out.println(usersByState.toString());
-
         User user = usersByState.getFirst();
 
         return userMapper.userToUserDto(user);
