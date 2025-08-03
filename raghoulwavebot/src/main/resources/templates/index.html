@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Generic Web Template">
+  <title>raghoulwave.bot</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Reset some default styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #000000;
+        color: #ffffff;
+        padding: 2rem;
+        line-height: 1.6;
+    }
+
+    header, footer {
+        background-color: #000000;
+        color: #ffffff;
+        padding: 1rem;
+        text-align: center;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    main {
+        text-align: center;
+    }
+
+    .button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border: none;
+        background-color: #0c301c;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .button:hover {
+        background-color: #144f2e;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to raghoulwave.bot</h1>
+  </header>
+
+  <main>
+    <a href="https://t.me/raghoulwave_bot" class="button">Back to Telegram</a>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 raghoulwave.bot</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const button = document.getElementById("clickMe")
+  
+        button.addEventListener("click", () => {
+            console.log("Welcome")
+        })
+    })
+  </script>
+</body>
+</html>

@@ -35,7 +35,7 @@ public class SpotifyAuthController {
         spotifyWebApiAuthorizationService.authorizationCode_Sync(spotifyResponseDTO);
 
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("back_to_telegram");
+        modelAndView.setViewName("index");
         return modelAndView;
     }
 }
