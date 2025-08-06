@@ -7,72 +7,457 @@
   <title>raghoulwave.bot</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Reset some default styles */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+    html {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-        font-family: Arial, sans-serif;
-        background-color: #000000;
-        color: #ffffff;
-        padding: 2rem;
-        line-height: 1.6;
+      animation-name: gradientAnimation;
+      animation-duration: 2.0s;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      align-content: stretch;
+      width: 100%;
+      height: 100%;
+      margin-top: 0;
+      padding-top: 0;
+      margin-bottom: 0;
+      padding-bottom: 0;
+      font-family: 'Courier New', monospace;
+      background: #000;
+      background: linear-gradient(180deg,rgba(0, 0, 0, 1) 50%,rgba(85, 147, 0, 1) 100%);
+      background-size: 200% 200%;
+      color: #c8ffa5;
     }
 
-    header, footer {
-        background-color: #000000;
-        color: #ffffff;
-        padding: 1rem;
-        text-align: center;
-        border-radius: 8px;
-        margin-bottom: 2rem;
+    @keyframes gradientAnimation {
+      0% {
+        background-position: 50% 40%;
+      }
+      50% {
+        background-position: 50% 70%;
+      }
+      100% {
+        background-position: 50% 40%;
+      }
+    }
+
+    header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      width: 100%;
+      height: 15%;
+      color: #c8ffa5;
+      text-shadow: 0 0 8px #0c301c;
+      text-align: center;
+      border-radius: 1%;
+      border-bottom: 1px solid #383838;
+      margin-bottom: 0;
+    }
+
+    footer {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      width: 100%;
+      height: 15%;
+      color: #c8ffa5;
+      text-shadow: 0 0 14px #0c301c;
+      text-align: center;
+      border-radius: 1%;
+      border-top: 1px solid #383838;
+      margin-bottom: 0;
     }
 
     main {
-        text-align: center;
+      width: 100%;
+      height: 70%;
+      text-align: center;
+    }
+
+    .linkContainer {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      align-content: center;
+
+      width: 100%;
+      height: 30%;
+      color: #c8ffa5;
+      text-align: center;
     }
 
     .button {
-        margin-top: 1rem;
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
-        border: none;
-        background-color: #0c301c;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      align-content: center;
+
+      width: 30vw;
+      height: 30%;
+      background-color: #c8ffa5;
     }
 
-    .button:hover {
-        background-color: #144f2e;
+    .link {
+      font-size: 90%;
+      color: #000;
+      text-decoration: none;
+    }
+
+    .waveContainer {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: flex-end;
+
+      width: 100%;
+      height: 70%;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .bit00 {
+      animation-name: bitAnimation60;
+      animation-duration: 0.6s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit01 {
+      animation-name: bitAnimation40;
+      animation-duration: 0.4s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit02 {
+      animation-name: bitAnimation30;
+      animation-duration: 0.3s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit03 {
+      animation-name: bitAnimation60;
+      animation-duration: 0.6s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit04 {
+      animation-name: bitAnimation70;
+      animation-duration: 0.7s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit05 {
+      animation-name: bitAnimation100;
+      animation-duration: 1.0s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit06 {
+      animation-name: bitAnimation80;
+      animation-duration: 0.8s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit07 {
+      animation-name: bitAnimation50;
+      animation-duration: 0.5s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit08 {
+      animation-name: bitAnimation90;
+      animation-duration: 0.9s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit09 {
+      animation-name: bitAnimation80;
+      animation-duration: 0.8s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit10 {
+      animation-name: bitAnimation40;
+      animation-duration: 0.4s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit11 {
+      animation-name: bitAnimation100;
+      animation-duration: 1.0s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit12 {
+      animation-name: bitAnimation60;
+      animation-duration: 0.6s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit13 {
+      animation-name: bitAnimation100;
+      animation-duration: 1.0s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit14 {
+      animation-name: bitAnimation60;
+      animation-duration: 0.6s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    .bit15 {
+      animation-name: bitAnimation50;
+      animation-duration: 0.5s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease;
+
+      width: 4%;
+      height: 10%;
+      background-color: #c8ffa5;
+      text-align: center;
+      border-radius: 2vw 2vw 0 0;
+    }
+
+    @keyframes bitAnimation30 {
+      from {
+        height: 10%;
+      }
+      to {
+        height: 30%;
+      }
+    }
+    @keyframes bitAnimation40 {
+      from {
+        height: 10%;
+      }
+      to {
+        height: 40%;
+      }
+    }
+    @keyframes bitAnimation50 {
+      from {
+        height: 10%;
+      }
+      to {
+        height: 50%;
+      }
+    }
+    @keyframes bitAnimation60 {
+      from {
+        height: 10%;
+      }
+      to {
+        height: 60%;
+      }
+    }
+    @keyframes bitAnimation70 {
+      from {
+        height: 10%;
+      }
+      to {
+        height: 70%;
+      }
+    }
+    @keyframes bitAnimation80 {
+      from {
+        height: 10%;
+      }
+      to {
+        height: 80%;
+      }
+    }
+    @keyframes bitAnimation90 {
+      from {
+        height: 10%;
+      }
+      to {
+        height: 90%;
+      }
+    }
+    @keyframes bitAnimation100 {
+      from {
+        height: 10%;
+      }
+      to {
+        height: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Welcome to raghoulwave.bot</h1>
+    <div class="welcomeContainer">
+      <h1>Welcome to raghoulwave.bot</h1>
+    </div>
   </header>
 
   <main>
-    <a href="https://t.me/raghoulwave_bot" class="button">Back to Telegram</a>
+    <div class="linkContainer">
+      <div class="button">
+        <a href="https://t.me/raghoulwave_bot" class="link">Back to Telegram</a>
+      </div>
+    </div>
+    <div class="waveContainer">
+      <div class="bit00"></div>
+      <div class="bit01"></div>
+      <div class="bit02"></div>
+      <div class="bit03"></div>
+      <div class="bit04"></div>
+      <div class="bit05"></div>
+      <div class="bit06"></div>
+      <div class="bit07"></div>
+      <div class="bit08"></div>
+      <div class="bit09"></div>
+      <div class="bit10"></div>
+      <div class="bit11"></div>
+      <div class="bit12"></div>
+      <div class="bit13"></div>
+      <div class="bit14"></div>
+      <div class="bit15"></div>
+    </div>
   </main>
 
   <footer>
-    <p>&copy; 2025 raghoulwave.bot</p>
+    <div class="copyrightContainer">
+      <p>&copy; 2025 raghoulwave.bot</p>
+    </div>
   </footer>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const button = document.getElementById("clickMe")
-  
-        button.addEventListener("click", () => {
-            console.log("Welcome")
-        })
-    })
   </script>
 </body>
 </html>
