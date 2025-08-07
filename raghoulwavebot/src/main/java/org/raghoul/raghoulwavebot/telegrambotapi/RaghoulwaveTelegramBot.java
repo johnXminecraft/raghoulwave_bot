@@ -39,7 +39,6 @@ public class RaghoulwaveTelegramBot extends SpringWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-
         return handleUpdateService.handleUpdate(update);
     }
 

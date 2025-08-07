@@ -24,34 +24,26 @@ public class TelegramWebhookBotConfig {
 
     @Bean
     public DefaultBotOptions options() {
-
         DefaultBotOptions options = new DefaultBotOptions();
-
         options.setAllowedUpdates(allowedUpdatesList);
-
         return options;
     }
 
     @Bean
     public SetWebhook setWebhook() {
-
         SetWebhook webhook = new SetWebhook();
-
         webhook.setUrl(url);
         webhook.setAllowedUpdates(allowedUpdatesList);
-
         return webhook;
     }
 
     @Bean
     public String botToken() {
-
         return token;
     }
 
     @Bean
     public String url() {
-
         return url;
     }
 }

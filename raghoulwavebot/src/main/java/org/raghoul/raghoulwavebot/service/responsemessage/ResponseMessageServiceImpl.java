@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
+import org.raghoul.raghoulwavebot.service.download.DownloadService;
 import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiService;
 import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebApiAuthorizationService;
 import org.raghoul.raghoulwavebot.service.menu.MenuService;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
+import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,6 +26,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     private final UserService userService;
     private final MenuService menuService;
+    private final DownloadService downloadService;
     private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
     private final SpotifyWebApiService spotifyWebApiService;
     @Value("${raghoulwavebot.config.administrator.id}")
@@ -168,7 +172,19 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
             UserDto userDto = userService.getByTelegramId(user.getId());
             userDto.setBotState("currentTrack");
             userService.update(userDto);
-            messageToSend.setText(spotifyWebApiService.getCurrentTrack(userDto));
+            if(spotifyWebApiService.isSomethingPlayingCurrently(userDto)) {
+                CurrentlyPlaying currentlyPlaying = spotifyWebApiService.getCurrentTrack(userDto);
+                String output =
+                        "Current track:\n\n" +
+                        "<a href='" +
+                        currentlyPlaying.getItem().getExternalUrls().get("spotify") +
+                        "'>" +
+                        currentlyPlaying.getItem().getName() +
+                        "</a>\n";
+                messageToSend.setText(output);
+            } else {
+                messageToSend.setText("Nothing is playing :(");
+            }
             messageToSend.setReplyMarkup(menuService.getMenu(botState, command));
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
@@ -180,7 +196,20 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private SendMessage downloadCurrentTrackResponseMessage(User user) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        messageToSend.setText("This option is currently unavailable");
+        if (isUserRegistered(user)) {
+            UserDto userDto = userService.getByTelegramId(user.getId());
+            userDto.setBotState("currentTrack");
+            userService.update(userDto);
+            if(spotifyWebApiService.isSomethingPlayingCurrently(userDto)) {
+                CurrentlyPlaying currentlyPlaying = spotifyWebApiService.getCurrentTrack(userDto);
+                String output = downloadService.getYtMusicTrackLink(userDto, currentlyPlaying.getItem());
+                messageToSend.setText(output);
+            } else {
+                messageToSend.setText("Nothing is playing :(");
+            }
+        } else {
+            messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
+        }
         messageToSend.enableHtml(true);
         return messageToSend;
     }

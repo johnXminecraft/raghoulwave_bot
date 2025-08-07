@@ -9,14 +9,14 @@ import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebA
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
+import se.michaelthelin.spotify.model_objects.IPlaylistItem;
 import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
-import se.michaelthelin.spotify.model_objects.specification.Paging;
-import se.michaelthelin.spotify.model_objects.specification.PagingCursorbased;
-import se.michaelthelin.spotify.model_objects.specification.PlayHistory;
-import se.michaelthelin.spotify.model_objects.specification.SavedTrack;
+import se.michaelthelin.spotify.model_objects.specification.*;
 import se.michaelthelin.spotify.requests.data.library.GetUsersSavedTracksRequest;
 import se.michaelthelin.spotify.requests.data.player.GetCurrentUsersRecentlyPlayedTracksRequest;
 import se.michaelthelin.spotify.requests.data.player.GetUsersCurrentlyPlayingTrackRequest;
+import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
@@ -29,41 +29,110 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
 
     private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
 
-    @Override
-    public String getCurrentTrack(UserDto user) {
+    public Track getTrackMetadata(UserDto user, IPlaylistItem item) {
         String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
-
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
-
-        GetUsersCurrentlyPlayingTrackRequest request = spotifyApi.getUsersCurrentlyPlayingTrack()
-                .additionalTypes("track")
-                .build();
-
+        String spotifyUrl = item.getExternalUrls().get("spotify");
+        String trackId = extractSpotifyTrackId(spotifyUrl);
+        GetTrackRequest request = spotifyApi.getTrack(trackId).build();
         try {
-            CurrentlyPlaying currentlyPlaying = request.execute();
-
-            if(Objects.isNull(currentlyPlaying)) {
-                throw new SpotifyWebApiException("Nothing is playing at the moment");
+            Track track = request.execute();
+            if(Objects.isNull(track)) {
+                throw new SpotifyWebApiException("No such track found :(");
             } else {
-                StringBuilder outputBuilder = new StringBuilder();
-
-                outputBuilder
-                        .append("<a href='")
-                        .append(currentlyPlaying.getItem().getExternalUrls().get("spotify"))
-                        .append("'>")
-                        .append(currentlyPlaying.getItem().getName())
-                        .append("</a>\n");
-
-                String output = outputBuilder.toString();
-
-                return "Current track:\n\n" + output;
+                return track;
             }
         } catch (SpotifyWebApiException | IOException | ParseException e) {
             System.out.println(e.getMessage());
+            return null;
+        }
+    }
 
+    public boolean doesTrackExist(UserDto user, IPlaylistItem item) {
+        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
+        SpotifyApi spotifyApi = new SpotifyApi.Builder()
+                .setAccessToken(accessToken)
+                .build();
+        String spotifyUrl = item.getExternalUrls().get("spotify");
+        String trackId = extractSpotifyTrackId(spotifyUrl);
+        GetTrackRequest request = spotifyApi.getTrack(trackId).build();
+        try {
+            Track track = request.execute();
+            if(Objects.isNull(track)) {
+                throw new SpotifyWebApiException("No such track found :(");
+            } else {
+                return true;
+            }
+        } catch (SpotifyWebApiException | IOException | ParseException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    private String extractSpotifyTrackId(String url) {
+        try {
+            if (url == null || url.isBlank()) {
+                throw new IllegalArgumentException("Invalid track URL :(");
+            }
+            int lastSlash = url.lastIndexOf("/");
+            if (lastSlash == -1 || lastSlash == url.length() - 1) {
+                throw new IllegalArgumentException("Invalid track URL :(");
+            }
+            String idPart = url.substring(lastSlash + 1);
+            String[] parts = idPart.split("\\?");
+            if (parts.length == 0 || parts[0].isBlank()) {
+                throw new IllegalArgumentException("Invalid track URL :(");
+            }
+            return parts[0];
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             return e.getMessage();
+        }
+    }
+
+    @Override
+    public CurrentlyPlaying getCurrentTrack(UserDto user) {
+        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
+        SpotifyApi spotifyApi = new SpotifyApi.Builder()
+                .setAccessToken(accessToken)
+                .build();
+        GetUsersCurrentlyPlayingTrackRequest request = spotifyApi.getUsersCurrentlyPlayingTrack()
+                .additionalTypes("track")
+                .build();
+        try {
+            CurrentlyPlaying currentlyPlaying = request.execute();
+            if(Objects.isNull(currentlyPlaying)) {
+                throw new SpotifyWebApiException("Nothing is playing :(");
+            } else {
+                return currentlyPlaying;
+            }
+        } catch (SpotifyWebApiException | IOException | ParseException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public boolean isSomethingPlayingCurrently(UserDto user) {
+        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
+        SpotifyApi spotifyApi = new SpotifyApi.Builder()
+                .setAccessToken(accessToken)
+                .build();
+        GetUsersCurrentlyPlayingTrackRequest request = spotifyApi.getUsersCurrentlyPlayingTrack()
+                .additionalTypes("track")
+                .build();
+        try {
+            CurrentlyPlaying currentlyPlaying = request.execute();
+            if(Objects.isNull(currentlyPlaying)) {
+                throw new SpotifyWebApiException("Nothing is playing :(");
+            } else {
+                return true;
+            }
+        } catch (SpotifyWebApiException | IOException | ParseException e) {
+            System.out.println(e.getMessage());
+            return false;
         }
     }
 
