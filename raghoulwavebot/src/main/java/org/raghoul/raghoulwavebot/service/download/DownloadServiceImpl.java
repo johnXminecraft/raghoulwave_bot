@@ -1,7 +1,5 @@
 package org.raghoul.raghoulwavebot.service.download;
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
@@ -9,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
 import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.model_objects.IPlaylistItem;
 import se.michaelthelin.spotify.model_objects.specification.Track;
@@ -24,8 +21,7 @@ import java.util.Objects;
 public class DownloadServiceImpl implements DownloadService {
 
     private final SpotifyWebApiService spotifyWebApiService;
-    @Value("${raghoulwavebot.config.google.youtube_data_api_v3.api_key}")
-    private String ytDataApiV3Key;
+    private final YouTube youtube;
 
     @Override
     public String getYtMusicTrackLink(UserDto user, IPlaylistItem item) {
@@ -35,7 +31,7 @@ public class DownloadServiceImpl implements DownloadService {
         Track track = spotifyWebApiService.getTrackMetadata(user, item);
         String query = track.getName() + " " + track.getArtists()[0].getName();
         String ytMusicTrackId = getYtMusicTrackId(query);
-        if(!Objects.equals(ytMusicTrackId, "Something went wrong... :(")) {
+        if(Objects.equals(ytMusicTrackId, "Something went wrong... :(")) {
             return ytMusicTrackId;
         }
         return "https://music.youtube.com/watch?v=" + ytMusicTrackId;
@@ -43,14 +39,8 @@ public class DownloadServiceImpl implements DownloadService {
 
     private String getYtMusicTrackId(String query) {
         try {
-            YouTube youtube = new YouTube.Builder(
-                    GoogleNetHttpTransport.newTrustedTransport(),
-                    GsonFactory.getDefaultInstance(), // something is wrong here
-                    null
-            ).setApplicationName("link-receiver").build();
             YouTube.Search.List search = youtube.search().list("id,snippet");
-            search.setKey(ytDataApiV3Key);
-            search.setQ(query + " site:music.youtube.com");
+            search.setQ(query);
             search.setType("video");
             search.setMaxResults(1L);
             SearchListResponse response = search.execute();

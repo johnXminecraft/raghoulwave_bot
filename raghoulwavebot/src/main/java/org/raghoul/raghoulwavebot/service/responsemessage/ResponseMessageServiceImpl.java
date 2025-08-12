@@ -9,7 +9,6 @@ import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiService;
 import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebApiAuthorizationService;
 import org.raghoul.raghoulwavebot.service.menu.MenuService;
 import org.raghoul.raghoulwavebot.service.user.UserService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -29,8 +28,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private final DownloadService downloadService;
     private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
     private final SpotifyWebApiService spotifyWebApiService;
-    @Value("${raghoulwavebot.config.administrator.id}")
-    private String administratorId;
+    private final String administratorId;
 
     @Override
     public SendMessage getResponseMessage(User user, String botState, String command) {

@@ -15,6 +15,8 @@ public class TelegramWebhookBotConfig {
     private String url;
     @Value("${raghoulwavebot.config.webhook.token}")
     private String token;
+    @Value("${raghoulwavebot.config.administrator.id}")
+    private String administratorId;
     private final List<String> allowedUpdatesList = new ArrayList<>(){
         {
             add("callback_query");
@@ -45,5 +47,10 @@ public class TelegramWebhookBotConfig {
     @Bean
     public String url() {
         return url;
+    }
+
+    @Bean
+    public String administratorId() {
+        return administratorId;
     }
 }
