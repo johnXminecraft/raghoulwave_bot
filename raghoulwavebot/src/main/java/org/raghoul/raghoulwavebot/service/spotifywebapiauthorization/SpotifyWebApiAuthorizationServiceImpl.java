@@ -7,7 +7,7 @@ import org.raghoul.raghoulwavebot.dto.spotifyresponse.SpotifyResponseDTO;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
 import org.raghoul.raghoulwavebot.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.SpotifyHttpManager;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
@@ -26,7 +26,7 @@ import java.util.concurrent.CompletionException;
 @Getter
 @Setter
 @ToString
-@Component
+@Service
 public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAuthorizationService {
 
     /*TODO
@@ -36,7 +36,6 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
     *  Fix Constructor Ig */
 
     private final UserService userService;
-
     private String clientId;
     private String clientSecret;
     private String redirectUriString;

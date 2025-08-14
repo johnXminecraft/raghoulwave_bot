@@ -12,7 +12,7 @@ public class SpotifyWebApiConfig {
     @Value("${raghoulwavebot.config.spotify.client_secret}")
     private String clientSecret;
     @Value("${raghoulwavebot.config.spotify.redirect_uri}")
-    String redirectUriString;
+    private String redirectUriString;
 
     @Bean
     public String clientId() {
