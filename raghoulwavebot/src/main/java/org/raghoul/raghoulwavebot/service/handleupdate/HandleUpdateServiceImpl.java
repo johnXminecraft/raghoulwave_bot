@@ -6,7 +6,6 @@ import org.raghoul.raghoulwavebot.service.responsemessage.ResponseMessageService
 import org.raghoul.raghoulwavebot.service.user.UserService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -26,7 +25,7 @@ public class HandleUpdateServiceImpl implements HandleUpdateService {
         User user;
         String botState;
         String command;
-        SendMessage messageToSend;
+        BotApiMethod<?> method;
 
         try {
             if(update.hasMessage() && update.getMessage().hasText()) {
@@ -37,13 +36,13 @@ public class HandleUpdateServiceImpl implements HandleUpdateService {
                     botState = "authorizing";
                 }
                 command = update.getMessage().getText();
-                messageToSend = responseMessageService.getResponseMessage(user, botState, command);
+                method = responseMessageService.getResponseMessage(user, botState, command);
             }
             else if(update.hasCallbackQuery()) {
                 user = update.getCallbackQuery().getFrom();
                 botState = userService.getByTelegramId(user.getId()).getBotState();
                 command = update.getCallbackQuery().getData();
-                messageToSend = responseMessageService.getResponseMessage(user, botState, command);
+                method = responseMessageService.getResponseMessage(user, botState, command);
             }
             else {
                 throw new TelegramApiException("Update message has no text");
@@ -53,7 +52,7 @@ public class HandleUpdateServiceImpl implements HandleUpdateService {
             throw new RuntimeException(e);
         }
 
-        return messageToSend;
+        return method;
     }
 
     private boolean isUserRegistered(User user) {

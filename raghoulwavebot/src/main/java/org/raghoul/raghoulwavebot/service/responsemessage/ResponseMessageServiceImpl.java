@@ -10,6 +10,7 @@ import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebA
 import org.raghoul.raghoulwavebot.service.menu.MenuService;
 import org.raghoul.raghoulwavebot.service.user.UserService;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
@@ -31,7 +32,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private final String administratorId;
 
     @Override
-    public SendMessage getResponseMessage(User user, String botState, String command) {
+    public BotApiMethod<?> getResponseMessage(User user, String botState, String command) {
         return (Objects.equals(command, "/start"))
                 ? startResponseMessage(user)
                 : (Objects.equals(botState, "ready") && Objects.equals(command, "Ready"))
@@ -200,7 +201,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
             userService.update(userDto);
             if(spotifyWebApiService.isSomethingPlayingCurrently(userDto)) {
                 CurrentlyPlaying currentlyPlaying = spotifyWebApiService.getCurrentTrack(userDto);
-                String output = downloadService.getYtMusicTrackLink(userDto, currentlyPlaying.getItem());
+                String output = downloadService.downloadTrack(userDto, currentlyPlaying.getItem());
                 messageToSend.setText(output);
             } else {
                 messageToSend.setText("Nothing is playing :(");

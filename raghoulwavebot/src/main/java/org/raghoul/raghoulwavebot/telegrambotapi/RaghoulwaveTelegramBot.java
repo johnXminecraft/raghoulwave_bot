@@ -22,6 +22,12 @@ import org.telegram.telegrambots.starter.SpringWebhookBot;
 @Component
 public class RaghoulwaveTelegramBot extends SpringWebhookBot {
 
+    /*TODO
+    *  rewrite as a Service
+    *  create Beans
+    *  fix disability to send files
+    * */
+
     private String botPath;
     private String botUsername;
     private String botToken;
