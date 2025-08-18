@@ -6,13 +6,11 @@ import com.google.api.services.youtube.model.SearchResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
+import org.raghoul.raghoulwavebot.service.audiotag.AudioTagService;
 import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiService;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import se.michaelthelin.spotify.model_objects.IPlaylistItem;
 import se.michaelthelin.spotify.model_objects.specification.Track;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -27,40 +25,78 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class DownloadServiceImpl implements DownloadService {
 
-    /*TODO
-    *  downloadDir path should be a bean
-    *  only one method should be accessible
-    * */
-
-    private final SpotifyWebApiService spotifyWebApiService;
     private final YouTube youtube;
+    private final String downloadPath;
+    private final String botToken;
+    private final SpotifyWebApiService spotifyWebApiService;
+    private final AudioTagService audioTagService;
 
     @Override
-    public SendDocument sendTrack(UserDto user, IPlaylistItem item) {
-        SendDocument track = new SendDocument();
-        track.setChatId(user.getTelegramId());
-        track.setDocument(new InputFile(downloadTrack(user, item)));
-        track.setCaption("@raghoulwave_bot");
-        return track;
+    public String sendTrack(UserDto user, IPlaylistItem item) {
+        String trackPath = downloadTrack(user, item);
+        audioTagService.setTrackTags(user, item, new File(trackPath));
+        try {
+            if(trackPath.startsWith(downloadPath)) {
+                String command = "curl";
+                String param = "-F";
+                String param1key1 = "chat_id=481950623";
+                String param1key2 = "audio=@" + trackPath;
+                String request = "https://api.telegram.org/bot" + botToken + "/sendAudio";
+                try {
+                    ProcessBuilder processBuilder = new ProcessBuilder(
+                            command,
+                            param, param1key1,
+                            param, param1key2,
+                            request
+                    );
+                    processBuilder.redirectErrorStream(true);
+                    Process process = processBuilder.start();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            System.out.println("[curl] " + line);
+                        }
+                    }
+                    int exitCode = process.waitFor();
+                    if (exitCode != 0) {
+                        System.out.println(processBuilder.command().toString());
+                        throw new RuntimeException("Request failed with exit code " + exitCode);
+                    }
+                    if(!clearDirectory()) {
+                        throw new RuntimeException("Failed to clear directory");
+                    }
+                    return "The track is being sent. :)";
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    return e.getMessage();
+                }
+            } else {
+                throw new RuntimeException("Invalid track path");
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        }
     }
 
-    @Override
     public String downloadTrack(UserDto user, IPlaylistItem item) {
         String command = "yt-dlp";
         String cookies = "--cookies-from-browser";
         String browser = "firefox";
         String type = "-t";
         String typeName = "mp3";
+        String format = "-f";
+        String formatType = "bestaudio";
         String pathArg = "-o";
-        String path = "~/Downloads/raghoulwave_downloadDir/%(title)s";
+        String path = downloadPath + "/track";
         String link = getYtMusicTrackLink(user, item);
-        Path downloadDir = Paths.get("/Users/raghoul/Downloads/raghoulwave_downloadDir");
+        Path downloadDir = Paths.get(downloadPath);
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
                     command,
                     cookies, browser,
                     type, typeName,
-                    "-f", "bestaudio",
+                    format, formatType,
                     pathArg, path,
                     link
             );
@@ -127,5 +163,22 @@ public class DownloadServiceImpl implements DownloadService {
             System.out.println(e.getMessage());
             return e.getMessage();
         }
+    }
+
+    private boolean clearDirectory() {
+        File dir = new File(downloadPath);
+        if (dir.isDirectory()) {
+            Objects.requireNonNull(dir.listFiles());
+            for (File file : Objects.requireNonNull(dir.listFiles())) {
+                if (file.isFile()) {
+                    boolean deleted = file.delete();
+                    if (!deleted) {
+                        return false;
+                    }
+                    System.out.println("Deleted: " + file.getName() + " -> " + deleted);
+                }
+            }
+        }
+        return true;
     }
 }

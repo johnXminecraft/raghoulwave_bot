@@ -1,13 +1,10 @@
-package org.raghoul.raghoulwavebot.telegrambotapi;
+package org.raghoul.raghoulwavebot.service.telegrambotapi;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.raghoul.raghoulwavebot.service.handleupdate.HandleUpdateService;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
@@ -19,21 +16,15 @@ import org.telegram.telegrambots.starter.SpringWebhookBot;
 @Setter
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Component
-public class RaghoulwaveTelegramBot extends SpringWebhookBot {
-
-    /*TODO
-    *  rewrite as a Service
-    *  create Beans
-    *  fix disability to send files
-    * */
+@Service
+public class TelegramBotApiServiceImpl extends SpringWebhookBot implements TelegramBotApiService {
 
     private String botPath;
     private String botUsername;
     private String botToken;
     private final HandleUpdateService handleUpdateService;
 
-    public RaghoulwaveTelegramBot(
+    public TelegramBotApiServiceImpl(
             DefaultBotOptions options,
             SetWebhook setWebhook,
             String botToken,

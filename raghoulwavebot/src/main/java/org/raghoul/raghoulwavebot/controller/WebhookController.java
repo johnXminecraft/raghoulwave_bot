@@ -2,7 +2,7 @@ package org.raghoul.raghoulwavebot.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.raghoul.raghoulwavebot.telegrambotapi.RaghoulwaveTelegramBot;
+import org.raghoul.raghoulwavebot.service.telegrambotapi.TelegramBotApiService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -14,11 +14,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @RequestMapping(value = "/")
 public class WebhookController {
 
-    private final RaghoulwaveTelegramBot raghoulwaveTelegramBot;
+    private final TelegramBotApiService telegramBotApiService;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.OK)
     public BotApiMethod<?> onUpdateReceived(@RequestBody Update update) {
-        return raghoulwaveTelegramBot.onWebhookUpdateReceived(update);
+        return telegramBotApiService.onWebhookUpdateReceived(update);
     }
 }
