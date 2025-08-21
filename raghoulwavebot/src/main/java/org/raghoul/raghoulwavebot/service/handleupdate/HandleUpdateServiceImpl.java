@@ -16,6 +16,10 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class HandleUpdateServiceImpl implements HandleUpdateService {
 
+    /*TODO
+    * isUserRegistered(User user) should be external method.
+    * */
+
     private final ResponseMessageService responseMessageService;
     private final UserService userService;
 

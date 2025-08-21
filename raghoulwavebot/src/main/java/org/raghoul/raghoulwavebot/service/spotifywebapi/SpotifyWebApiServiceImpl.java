@@ -138,24 +138,18 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
 
     @Override
     public String getSavedTracks(UserDto user) {
-
         String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
-
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
-
         GetUsersSavedTracksRequest request = spotifyApi.getUsersSavedTracks().
-                limit(16)
+                limit(10)
                 .offset(0)
                 .market(CountryCode.UA)
                 .build();
-
         try {
             Paging<SavedTrack> savedTrackPaging = request.execute();
-
             SavedTrack[] savedTrack = savedTrackPaging.getItems();
-
             StringBuilder outputBuilder = new StringBuilder();
 
             for(SavedTrack savedTrackItem : savedTrack) {

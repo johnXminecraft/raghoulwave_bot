@@ -39,7 +39,7 @@ public class DownloadServiceImpl implements DownloadService {
             if(trackPath.startsWith(downloadPath)) {
                 String command = "curl";
                 String param = "-F";
-                String param1key1 = "chat_id=481950623";
+                String param1key1 = "chat_id=" + user.getTelegramId();
                 String param1key2 = "audio=@" + trackPath;
                 String request = "https://api.telegram.org/bot" + botToken + "/sendAudio";
                 try {
