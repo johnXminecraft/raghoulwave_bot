@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
 import org.raghoul.raghoulwavebot.mapper.user.UserMapper;
 import org.raghoul.raghoulwavebot.model.user.User;
-import org.raghoul.raghoulwavebot.repository.UserRepository;
+import org.raghoul.raghoulwavebot.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
 
         User user = optionalOfUser.orElse(null);
 
-        return userMapper.userToUserDto(user);
+        return userMapper.entityToDto(user);
     }
 
     @Override
@@ -33,13 +33,13 @@ public class UserServiceImpl implements UserService {
 
         List<User> userList = userRepository.findAll();
 
-        return userMapper.userListToUserDtoList(userList);
+        return userMapper.entityListToDtoList(userList);
     }
 
     @Override
     public void add(UserDto userDto) {
 
-        User user = userMapper.userDtoToUser(userDto);
+        User user = userMapper.dtoToEntity(userDto);
 
         userRepository.save(user);
     }
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void update(UserDto userDto) {
 
-        User user = userMapper.userDtoToUser(userDto);
+        User user = userMapper.dtoToEntity(userDto);
 
         userRepository.save(user);
     }
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 
         User user = usersByTelegramId.getFirst();
 
-        return userMapper.userToUserDto(user);
+        return userMapper.entityToDto(user);
     }
 
     @Override
@@ -75,6 +75,6 @@ public class UserServiceImpl implements UserService {
 
         User user = usersByState.getFirst();
 
-        return userMapper.userToUserDto(user);
+        return userMapper.entityToDto(user);
     }
 }

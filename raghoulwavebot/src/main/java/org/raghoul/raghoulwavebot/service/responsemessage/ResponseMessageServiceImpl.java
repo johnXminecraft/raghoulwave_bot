@@ -80,10 +80,11 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
                     .tag(user.getUserName())
                     .first(user.getFirstName())
                     .last(user.getLastName())
-                    .lang(user.getLanguageCode())
+                    .language(user.getLanguageCode())
                     .state(state)
                     .refreshToken("IRT")
                     .botState("authorizing")
+                    .page(0)
                     .build();
             userService.add(newUser);
             String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(state);

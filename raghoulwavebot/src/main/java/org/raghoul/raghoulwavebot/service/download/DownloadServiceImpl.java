@@ -81,8 +81,6 @@ public class DownloadServiceImpl implements DownloadService {
 
     public String downloadTrack(UserDto user, IPlaylistItem item) {
         String command = "yt-dlp";
-        String cookies = "--cookies-from-browser";
-        String browser = "firefox";
         String type = "-t";
         String typeName = "mp3";
         String format = "-f";
@@ -94,7 +92,6 @@ public class DownloadServiceImpl implements DownloadService {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
                     command,
-                    cookies, browser,
                     type, typeName,
                     format, formatType,
                     pathArg, path,

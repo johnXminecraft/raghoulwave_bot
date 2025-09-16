@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
 import org.raghoul.raghoulwavebot.mapper.user.UserMapper;
 import org.raghoul.raghoulwavebot.model.user.User;
-import org.raghoul.raghoulwavebot.repository.UserRepository;
+import org.raghoul.raghoulwavebot.repository.user.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -82,9 +82,9 @@ class UserServiceImplTest {
     @Test
     public void shouldAddUser() {
 
-        when(userMapper.userDtoToUser(userDto)).thenReturn(userEntity);
+        when(userMapper.dtoToEntity(userDto)).thenReturn(userEntity);
 
-        User result = userMapper.userDtoToUser(userDto);
+        User result = userMapper.dtoToEntity(userDto);
 
         testInstance.add(userDto);
 
@@ -94,7 +94,7 @@ class UserServiceImplTest {
     @Test
     public void shouldNotAddUser() {
 
-        when(userMapper.userDtoToUser(userDto)).thenThrow(RuntimeException.class);
+        when(userMapper.dtoToEntity(userDto)).thenThrow(RuntimeException.class);
 
         testInstance.add(userDto);
 
@@ -104,9 +104,9 @@ class UserServiceImplTest {
     @Test
     public void shouldUpdateUser() {
 
-        when(userMapper.userDtoToUser(userDto)).thenReturn(userEntity);
+        when(userMapper.dtoToEntity(userDto)).thenReturn(userEntity);
 
-        User result = userMapper.userDtoToUser(userDto);
+        User result = userMapper.dtoToEntity(userDto);
 
         testInstance.add(userDto);
 
@@ -116,7 +116,7 @@ class UserServiceImplTest {
     @Test
     public void shouldNotUpdateUser() {
 
-        when(userMapper.userDtoToUser(userDto)).thenThrow(RuntimeException.class);
+        when(userMapper.dtoToEntity(userDto)).thenThrow(RuntimeException.class);
 
         testInstance.add(userDto);
 

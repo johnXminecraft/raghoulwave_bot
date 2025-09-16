@@ -13,10 +13,11 @@ public class UserDto {
     private String tag;
     private String first;
     private String last;
-    private String lang;
+    private String language;
     private String state;
     private String refreshToken;
     private String botState;
+    private Integer page;
 
     public String toString() {
         return "\nUserDto(id=" + this.getId() +
@@ -24,7 +25,7 @@ public class UserDto {
                 ", tag=" + this.getTag() +
                 ", first=" + this.getFirst() +
                 ", last=" + this.getLast() +
-                ", lang=" + this.getLang() +
+                ", language=" + this.getLanguage() +
                 ", state=" + this.getState() +
                 ", refreshToken=" + this.getRefreshToken() +
                 ", botState=" + this.getBotState() +

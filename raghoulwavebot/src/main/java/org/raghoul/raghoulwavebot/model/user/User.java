@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "telegram_users")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,10 +23,12 @@ public class User {
     private String first;
     private String last;
     @NotNull
-    private String lang;
+    private String language;
     @NotNull
     private String state;
     private String refreshToken;
     @NotNull
     private String botState;
+    @NotNull
+    private Integer page;
 }
