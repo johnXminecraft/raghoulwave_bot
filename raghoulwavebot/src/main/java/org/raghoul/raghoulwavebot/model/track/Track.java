@@ -3,6 +3,9 @@ package org.raghoul.raghoulwavebot.model.track;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.raghoul.raghoulwavebot.model.user_track.UserTrack;
+
+import java.util.Set;
 
 @Getter
 @Setter
@@ -25,4 +28,6 @@ public class Track {
     private String spotifyId;
     @NotNull
     private String youtubeId;
+    @OneToMany(mappedBy = "track", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserTrack> userTracks;
 }

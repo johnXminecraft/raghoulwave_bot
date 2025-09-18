@@ -1,11 +1,11 @@
-package org.raghoul.raghoulwavebot.service.spotifywebapi;
+package org.raghoul.raghoulwavebot.service.spotify_web_api;
 
 import com.neovisionaries.i18n.CountryCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
-import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebApiAuthorizationService;
+import org.raghoul.raghoulwavebot.service.spotify_web_api_authorization.SpotifyWebApiAuthorizationService;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;

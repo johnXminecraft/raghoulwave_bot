@@ -2,10 +2,10 @@ package org.raghoul.raghoulwavebot.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.raghoul.raghoulwavebot.dto.spotifyresponse.SpotifyResponseDTO;
-import org.raghoul.raghoulwavebot.mapper.spotifyresponse.SpotifyResponseMapper;
-import org.raghoul.raghoulwavebot.model.spotifyresponse.SpotifyResponse;
-import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebApiAuthorizationService;
+import org.raghoul.raghoulwavebot.dto.spotify_response.SpotifyResponseDTO;
+import org.raghoul.raghoulwavebot.mapper.spotify_response.SpotifyResponseMapper;
+import org.raghoul.raghoulwavebot.model.spotify_response.SpotifyResponse;
+import org.raghoul.raghoulwavebot.service.spotify_web_api_authorization.SpotifyWebApiAuthorizationService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

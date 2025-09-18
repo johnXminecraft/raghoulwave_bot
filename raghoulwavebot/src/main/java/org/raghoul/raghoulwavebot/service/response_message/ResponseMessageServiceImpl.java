@@ -1,12 +1,12 @@
-package org.raghoul.raghoulwavebot.service.responsemessage;
+package org.raghoul.raghoulwavebot.service.response_message;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
 import org.raghoul.raghoulwavebot.service.download.DownloadService;
-import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiService;
-import org.raghoul.raghoulwavebot.service.spotifywebapiauthorization.SpotifyWebApiAuthorizationService;
+import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
+import org.raghoul.raghoulwavebot.service.spotify_web_api_authorization.SpotifyWebApiAuthorizationService;
 import org.raghoul.raghoulwavebot.service.menu.MenuService;
 import org.raghoul.raghoulwavebot.service.user.UserService;
 import org.springframework.stereotype.Service;

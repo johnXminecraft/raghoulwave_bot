@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.service.responsemessage;
+package org.raghoul.raghoulwavebot.service.response_message;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;

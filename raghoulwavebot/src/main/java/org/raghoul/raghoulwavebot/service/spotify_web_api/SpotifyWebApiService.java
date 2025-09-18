@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.service.spotifywebapi;
+package org.raghoul.raghoulwavebot.service.spotify_web_api;
 
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
 import se.michaelthelin.spotify.model_objects.IPlaylistItem;

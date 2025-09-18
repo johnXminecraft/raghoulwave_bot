@@ -1,9 +1,9 @@
-package org.raghoul.raghoulwavebot.service.spotifywebapiauthorization;
+package org.raghoul.raghoulwavebot.service.spotify_web_api_authorization;
 
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;
-import org.raghoul.raghoulwavebot.dto.spotifyresponse.SpotifyResponseDTO;
+import org.raghoul.raghoulwavebot.dto.spotify_response.SpotifyResponseDTO;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
 import org.raghoul.raghoulwavebot.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

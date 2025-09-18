@@ -1,8 +1,8 @@
-package org.raghoul.raghoulwavebot.mapper.spotifyresponse;
+package org.raghoul.raghoulwavebot.mapper.spotify_response;
 
 import org.mapstruct.Mapper;
-import org.raghoul.raghoulwavebot.dto.spotifyresponse.SpotifyResponseDTO;
-import org.raghoul.raghoulwavebot.model.spotifyresponse.SpotifyResponse;
+import org.raghoul.raghoulwavebot.dto.spotify_response.SpotifyResponseDTO;
+import org.raghoul.raghoulwavebot.model.spotify_response.SpotifyResponse;
 
 @Mapper(
         componentModel = "spring"

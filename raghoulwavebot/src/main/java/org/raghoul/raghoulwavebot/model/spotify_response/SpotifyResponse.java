@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.model.spotifyresponse;
+package org.raghoul.raghoulwavebot.model.spotify_response;
 
 import lombok.*;
 

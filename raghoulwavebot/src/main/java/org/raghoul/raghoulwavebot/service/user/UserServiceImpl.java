@@ -20,61 +20,45 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getById(Integer id) {
-
         Optional<User> optionalOfUser = userRepository.findById(id);
-
         User user = optionalOfUser.orElse(null);
-
         return userMapper.entityToDto(user);
     }
 
     @Override
     public List<UserDto> getAll() {
-
         List<User> userList = userRepository.findAll();
-
         return userMapper.entityListToDtoList(userList);
     }
 
     @Override
     public void add(UserDto userDto) {
-
         User user = userMapper.dtoToEntity(userDto);
-
         userRepository.save(user);
     }
 
     @Override
     public void update(UserDto userDto) {
-
         User user = userMapper.dtoToEntity(userDto);
-
         userRepository.save(user);
     }
 
     @Override
     public void deleteById(Integer id) {
-
         userRepository.deleteById(id);
     }
 
     @Override
     public UserDto getByTelegramId(Long telegramId) {
-
         List<User> usersByTelegramId = userRepository.findByTelegramId(telegramId);
-
         User user = usersByTelegramId.getFirst();
-
         return userMapper.entityToDto(user);
     }
 
     @Override
     public UserDto getByState(String state) {
-
         List<User> usersByState = userRepository.findByState(state);
-
         User user = usersByState.getFirst();
-
         return userMapper.entityToDto(user);
     }
 }

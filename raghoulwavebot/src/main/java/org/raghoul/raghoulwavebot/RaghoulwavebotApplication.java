@@ -14,7 +14,7 @@ public class RaghoulwavebotApplication {
     *   to return readable objects and not some fucking disgusting API bullshit objects that have nothing to do
     *   with a perfection of my architecture.
     *   1. DONE: user and track entities
-    *   2. many-to-many relation between them
+    *   2. DONE: many-to-many relation between them
     *   3. humanize spotify service
     *   4. fix other services
     *   5. ???

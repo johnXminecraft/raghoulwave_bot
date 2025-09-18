@@ -1,6 +1,8 @@
 package org.raghoul.raghoulwavebot.dto.user;
 
 import lombok.*;
+import org.raghoul.raghoulwavebot.dto.user_track.UserTrackDto;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -18,6 +20,7 @@ public class UserDto {
     private String refreshToken;
     private String botState;
     private Integer page;
+    private Set<UserTrackDto> userTracks;
 
     public String toString() {
         return "\nUserDto(id=" + this.getId() +
@@ -29,6 +32,7 @@ public class UserDto {
                 ", state=" + this.getState() +
                 ", refreshToken=" + this.getRefreshToken() +
                 ", botState=" + this.getBotState() +
+                ", userTracks=" + this.getUserTracks() +
                 ")\n";
     }
 }

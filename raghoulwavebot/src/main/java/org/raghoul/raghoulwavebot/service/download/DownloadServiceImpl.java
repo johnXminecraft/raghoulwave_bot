@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
 import org.raghoul.raghoulwavebot.service.audiotag.AudioTagService;
-import org.raghoul.raghoulwavebot.service.spotifywebapi.SpotifyWebApiService;
+import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.model_objects.IPlaylistItem;
 import se.michaelthelin.spotify.model_objects.specification.Track;

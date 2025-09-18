@@ -1,6 +1,6 @@
-package org.raghoul.raghoulwavebot.service.spotifywebapiauthorization;
+package org.raghoul.raghoulwavebot.service.spotify_web_api_authorization;
 
-import org.raghoul.raghoulwavebot.dto.spotifyresponse.SpotifyResponseDTO;
+import org.raghoul.raghoulwavebot.dto.spotify_response.SpotifyResponseDTO;
 import org.raghoul.raghoulwavebot.dto.user.UserDto;
 
 public interface SpotifyWebApiAuthorizationService {
