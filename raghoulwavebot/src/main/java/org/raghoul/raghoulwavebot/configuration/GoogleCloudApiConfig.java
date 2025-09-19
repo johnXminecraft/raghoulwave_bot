@@ -28,7 +28,7 @@ public class GoogleCloudApiConfig {
             return new YouTube.Builder(
                     GoogleNetHttpTransport.newTrustedTransport(),
                     GsonFactory.getDefaultInstance(),
-                    request -> {
+                    _ -> {
                     }).setApplicationName("link-receiver")
               .setYouTubeRequestInitializer(new YouTubeRequestInitializer(youtubeApiKey))
               .build();

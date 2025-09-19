@@ -2,31 +2,29 @@ package org.raghoul.raghoulwavebot.service.response_message;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.raghoul.raghoulwavebot.dto.user.UserDto;
+import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
 import org.raghoul.raghoulwavebot.service.download.DownloadService;
 import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
-import org.raghoul.raghoulwavebot.service.spotify_web_api_authorization.SpotifyWebApiAuthorizationService;
 import org.raghoul.raghoulwavebot.service.menu.MenuService;
-import org.raghoul.raghoulwavebot.service.user.UserService;
+import org.raghoul.raghoulwavebot.service.telegram_bot_api_authorization.TelegramBotApiAuthorizationService;
+import org.raghoul.raghoulwavebot.service.bot_user.BotUserService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
 import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ResponseMessageServiceImpl implements ResponseMessageService {
 
-    private final UserService userService;
+    private final BotUserService botUserService;
     private final MenuService menuService;
     private final DownloadService downloadService;
-    private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
     private final SpotifyWebApiService spotifyWebApiService;
+    private final TelegramBotApiAuthorizationService telegramBotApiAuthorizationService;
     private final String administratorId;
 
     @Override
@@ -60,39 +58,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     private SendMessage startResponseMessage(User user) {
         SendMessage messageToSend = new SendMessage();
-        List<UserDto> userDtoList = userService.getAll();
-        if(
-           userDtoList.stream().anyMatch(userDto -> Objects.equals(userDto.getTelegramId(), user.getId()))
-        ) {
-            Optional<UserDto> userDtoOptional = userDtoList.stream()
-                    .filter(userDtoFromList ->
-                            Objects.equals(userDtoFromList.getTelegramId(), user.getId())).findFirst();
-            UserDto userDto = userDtoOptional.orElseGet(UserDto::new);
-            String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(
-                    userDto.getState());
-            String hyperLink = "<a href=\"" + redirectUriString + "\">" + "You may also try again!" + "</a>";
-            messageToSend.setText("You are already registered :)\n\n" + hyperLink);
-        }
-        else {
-            String state = RandomStringUtils.random(16, true, false);
-            UserDto newUser = UserDto.builder()
-                    .telegramId(user.getId())
-                    .tag(user.getUserName())
-                    .first(user.getFirstName())
-                    .last(user.getLastName())
-                    .language(user.getLanguageCode())
-                    .state(state)
-                    .refreshToken("IRT")
-                    .botState("authorizing")
-                    .page(0)
-                    .build();
-            userService.add(newUser);
-            String redirectUriString = spotifyWebApiAuthorizationService.authorizationCodeUri_Sync(state);
-            String hyperLink = "<a href=\"" + redirectUriString + "\">" + "this link " + "</a>";
-            messageToSend.setText("Almost done! Now you only need to log in with your Spotify account to finish " +
-                    "the registration process. Use " + hyperLink + "to do so. \n\nAfter that, please press \"Ready\" " +
-                    "button bellow. :)");
-        }
+        messageToSend.setText(telegramBotApiAuthorizationService.authorize(user));
         messageToSend.setChatId(user.getId());
         messageToSend.setReplyMarkup(menuService.startMenu());
         messageToSend.enableHtml(true);
@@ -102,7 +68,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private SendMessage readyResponseMessage(User user, String botState, String command) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        if(isUserRegistered(user)) {
+        if(botUserService.isUserRegistered(user.getId())) {
             messageToSend.setText("You are fully ready to start experiencing Spotify from here :)");
             messageToSend.setReplyMarkup(menuService.getMenu(botState, command));
         } else {
@@ -115,10 +81,10 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private SendMessage mainMenuResponseMessage(User user, String command) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        if(isUserRegistered(user)) {
-            UserDto userDto = userService.getByTelegramId(user.getId());
+        if(botUserService.isUserRegistered(user.getId())) {
+            BotUserDto userDto = botUserService.getByTelegramId(user.getId());
             userDto.setBotState("ready");
-            userService.update(userDto);
+            botUserService.update(userDto);
             messageToSend.setText("Please, choose an option :)");
             messageToSend.setReplyMarkup(menuService.getMenu(userDto.getBotState(), command));
         } else {
@@ -130,7 +96,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     public SendMessage getAllResponseMessage(User user) {
         SendMessage messageToSend = new SendMessage();
-        List<UserDto> userDtoList = userService.getAll();
+        List<BotUserDto> userDtoList = botUserService.getAll();
         messageToSend.setChatId(user.getId());
         messageToSend.setText(userDtoList.toString());
         messageToSend.enableHtml(true);
@@ -140,8 +106,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private SendMessage getRecentlyPlayedTracksResponseMessage(User user) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        if (isUserRegistered(user)) {
-            UserDto userDto = userService.getByTelegramId(user.getId());
+        if (botUserService.isUserRegistered(user.getId())) {
+            BotUserDto userDto = botUserService.getByTelegramId(user.getId());
             messageToSend.setText(spotifyWebApiService.getRecentlyPlayedTracks(userDto));
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
@@ -153,8 +119,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private SendMessage getSavedTracksResponseMessage(User user) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        if (isUserRegistered(user)) {
-            UserDto userDto = userService.getByTelegramId(user.getId());
+        if (botUserService.isUserRegistered(user.getId())) {
+            BotUserDto userDto = botUserService.getByTelegramId(user.getId());
             messageToSend.setText(spotifyWebApiService.getSavedTracks(userDto));
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
@@ -166,23 +132,11 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private SendMessage getCurrentTrackResponseMessage(User user, String botState, String command) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        if (isUserRegistered(user)) {
-            UserDto userDto = userService.getByTelegramId(user.getId());
+        if (botUserService.isUserRegistered(user.getId())) {
+            BotUserDto userDto = botUserService.getByTelegramId(user.getId());
             userDto.setBotState("currentTrack");
-            userService.update(userDto);
-            if(spotifyWebApiService.isSomethingPlayingCurrently(userDto)) {
-                CurrentlyPlaying currentlyPlaying = spotifyWebApiService.getCurrentTrack(userDto);
-                String output =
-                        "Current track:\n\n" +
-                        "<a href='" +
-                        currentlyPlaying.getItem().getExternalUrls().get("spotify") +
-                        "'>" +
-                        currentlyPlaying.getItem().getName() +
-                        "</a>\n";
-                messageToSend.setText(output);
-            } else {
-                messageToSend.setText("Nothing is playing :(");
-            }
+            botUserService.update(userDto);
+            messageToSend.setText(spotifyWebApiService.getCurrentTrack(userDto));
             messageToSend.setReplyMarkup(menuService.getMenu(botState, command));
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
@@ -194,10 +148,11 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private SendMessage downloadCurrentTrackResponseMessage(User user) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        if (isUserRegistered(user)) {
-            UserDto userDto = userService.getByTelegramId(user.getId());
+        /*if (isUserRegistered(user)) {
+            BotUserDto userDto = botUserService.getByTelegramId(user.getId());
             userDto.setBotState("currentTrack");
-            userService.update(userDto);
+            botUserService.update(userDto);
+            messageToSend.setText(downloadService.sendTrack(userDto, currentlyPlaying.getItem()))
             if(spotifyWebApiService.isSomethingPlayingCurrently(userDto)) {
                 CurrentlyPlaying currentlyPlaying = spotifyWebApiService.getCurrentTrack(userDto);
                 String output = downloadService.sendTrack(userDto, currentlyPlaying.getItem());
@@ -207,15 +162,16 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
             }
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
-        }
+        }*/
+        messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
         messageToSend.enableHtml(true);
         return messageToSend;
     }
 
     private boolean isUserRegistered(User user) {
         try {
-            userService.getByTelegramId(user.getId());
-            return !Objects.equals(userService.getByTelegramId(user.getId()).getRefreshToken(), "IRT");
+            botUserService.getByTelegramId(user.getId());
+            return !Objects.equals(botUserService.getByTelegramId(user.getId()).getRefreshToken(), "IRT");
         } catch (Exception e) {
             return false;
         }

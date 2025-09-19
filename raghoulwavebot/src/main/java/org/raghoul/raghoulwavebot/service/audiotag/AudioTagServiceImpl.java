@@ -6,7 +6,7 @@ import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
-import org.raghoul.raghoulwavebot.dto.user.UserDto;
+import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
 import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.model_objects.IPlaylistItem;
@@ -22,8 +22,8 @@ public class AudioTagServiceImpl implements AudioTagService {
     private final SpotifyWebApiService spotifyWebApiService;
 
     @Override
-    public void setTrackTags(UserDto user, IPlaylistItem item, File file) {
-        Track track = spotifyWebApiService.getTrackMetadata(user, item);
+    public void setTrackTags(BotUserDto botUser, IPlaylistItem item, File file) {
+        Track track = spotifyWebApiService.getTrackMetadata(botUser, item);
         try {
             AudioFile audioFile = AudioFileIO.read(file);
             Tag tag = audioFile.getTagOrCreateAndSetDefault();

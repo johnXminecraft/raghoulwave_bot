@@ -3,9 +3,9 @@ package org.raghoul.raghoulwavebot.service.spotify_web_api_authorization;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;
-import org.raghoul.raghoulwavebot.dto.spotify_response.SpotifyResponseDTO;
-import org.raghoul.raghoulwavebot.dto.user.UserDto;
-import org.raghoul.raghoulwavebot.service.user.UserService;
+import org.raghoul.raghoulwavebot.dto.spotify_authorization_response.SpotifyAuthorizationResponseDto;
+import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
+import org.raghoul.raghoulwavebot.service.bot_user.BotUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -35,7 +35,7 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
     *  Perhaps some cosmetic BS
     *  Fix Constructor Ig */
 
-    private final UserService userService;
+    private final BotUserService botUserService;
     private String clientId;
     private String clientSecret;
     private String redirectUriString;
@@ -47,11 +47,11 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
 
     @Autowired
     public SpotifyWebApiAuthorizationServiceImpl(
-            UserService userService, String clientId,
+            BotUserService botUserService, String clientId,
             String clientSecret,
             String redirectUriString
     ) {
-        this.userService = userService;
+        this.botUserService = botUserService;
 
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -113,7 +113,7 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
     }
 
     @Override
-    public void authorizationCode_Sync(SpotifyResponseDTO spotifyResponseDTO) {
+    public void authorizationCode_Sync(SpotifyAuthorizationResponseDto spotifyResponseDTO) {
 
         String refreshToken = "IRT";
         String state = spotifyResponseDTO.getState();
@@ -134,10 +134,10 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
             System.out.println("Error: " + e.getMessage());
         }
 
-        UserDto userDto = userService.getByState(state);
+        BotUserDto userDto = botUserService.getByState(state);
         userDto.setRefreshToken(refreshToken);
         userDto.setBotState("ready");
-        userService.update(userDto);
+        botUserService.update(userDto);
     }
 
     @Override
@@ -146,10 +146,10 @@ public class SpotifyWebApiAuthorizationServiceImpl implements SpotifyWebApiAutho
     }
 
     @Override
-    public String authorizationCodeRefresh_Sync(UserDto user) {
+    public String authorizationCodeRefresh_Sync(BotUserDto botUserDto) {
 
-        if(!Objects.equals(user.getRefreshToken(), "IRT")) {
-            spotifyApi.setRefreshToken(user.getRefreshToken());
+        if(!Objects.equals(botUserDto.getRefreshToken(), "IRT")) {
+            spotifyApi.setRefreshToken(botUserDto.getRefreshToken());
         } else {
             return "CNGRT";
         }

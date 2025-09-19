@@ -4,7 +4,7 @@ import com.neovisionaries.i18n.CountryCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;
-import org.raghoul.raghoulwavebot.dto.user.UserDto;
+import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
 import org.raghoul.raghoulwavebot.service.spotify_web_api_authorization.SpotifyWebApiAuthorizationService;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -29,8 +29,8 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
 
     private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
 
-    public Track getTrackMetadata(UserDto user, IPlaylistItem item) {
-        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
+    public Track getTrackMetadata(BotUserDto botUserDto, IPlaylistItem item) {
+        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
@@ -50,8 +50,8 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
         }
     }
 
-    public boolean doesTrackExist(UserDto user, IPlaylistItem item) {
-        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
+    public boolean doesTrackExist(BotUserDto botUserDto, IPlaylistItem item) {
+        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
@@ -93,8 +93,8 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
     }
 
     @Override
-    public CurrentlyPlaying getCurrentTrack(UserDto user) {
-        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
+    public String getCurrentTrack(BotUserDto botUserDto) {
+        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
@@ -106,39 +106,21 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
             if(Objects.isNull(currentlyPlaying)) {
                 throw new SpotifyWebApiException("Nothing is playing :(");
             } else {
-                return currentlyPlaying;
+                return "Current track:\n\n" +
+                "<a href='" +
+                currentlyPlaying.getItem().getExternalUrls().get("spotify") +
+                "'>" +
+                currentlyPlaying.getItem().getName() +
+                "</a>\n";
             }
         } catch (SpotifyWebApiException | IOException | ParseException e) {
-            System.out.println(e.getMessage());
-            return null;
+            return e.getMessage();
         }
     }
 
     @Override
-    public boolean isSomethingPlayingCurrently(UserDto user) {
-        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
-        SpotifyApi spotifyApi = new SpotifyApi.Builder()
-                .setAccessToken(accessToken)
-                .build();
-        GetUsersCurrentlyPlayingTrackRequest request = spotifyApi.getUsersCurrentlyPlayingTrack()
-                .additionalTypes("track")
-                .build();
-        try {
-            CurrentlyPlaying currentlyPlaying = request.execute();
-            if(Objects.isNull(currentlyPlaying)) {
-                throw new SpotifyWebApiException("Nothing is playing :(");
-            } else {
-                return true;
-            }
-        } catch (SpotifyWebApiException | IOException | ParseException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
-    }
-
-    @Override
-    public String getSavedTracks(UserDto user) {
-        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
+    public String getSavedTracks(BotUserDto botUserDto) {
+        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
@@ -172,9 +154,9 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
     }
 
     @Override
-    public String getRecentlyPlayedTracks(UserDto user) {
+    public String getRecentlyPlayedTracks(BotUserDto botUserDto) {
 
-        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(user);
+        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
 
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)

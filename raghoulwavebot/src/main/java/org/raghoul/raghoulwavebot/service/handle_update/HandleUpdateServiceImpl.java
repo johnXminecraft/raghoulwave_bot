@@ -3,25 +3,20 @@ package org.raghoul.raghoulwavebot.service.handle_update;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.raghoul.raghoulwavebot.service.response_message.ResponseMessageService;
-import org.raghoul.raghoulwavebot.service.user.UserService;
+import org.raghoul.raghoulwavebot.service.bot_user.BotUserService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class HandleUpdateServiceImpl implements HandleUpdateService {
 
-    /*TODO
-    * isUserRegistered(User user) should be external method.
-    * */
-
     private final ResponseMessageService responseMessageService;
-    private final UserService userService;
+    private final BotUserService botUserService;
 
     public SendMessage handleUpdate(Update update) {
         User user;
@@ -31,8 +26,8 @@ public class HandleUpdateServiceImpl implements HandleUpdateService {
         try {
             if(update.hasMessage() && update.getMessage().hasText()) {
                 user = update.getMessage().getFrom();
-                if(isUserRegistered(user)) {
-                    botState = userService.getByTelegramId(user.getId()).getBotState();
+                if(botUserService.isUserRegistered(user.getId())) {
+                    botState = botUserService.getByTelegramId(user.getId()).getBotState();
                 } else {
                     botState = "authorizing";
                 }
@@ -41,7 +36,7 @@ public class HandleUpdateServiceImpl implements HandleUpdateService {
             }
             else if(update.hasCallbackQuery()) {
                 user = update.getCallbackQuery().getFrom();
-                botState = userService.getByTelegramId(user.getId()).getBotState();
+                botState = botUserService.getByTelegramId(user.getId()).getBotState();
                 command = update.getCallbackQuery().getData();
                 method = responseMessageService.getResponseMessage(user, botState, command);
             }
@@ -53,14 +48,5 @@ public class HandleUpdateServiceImpl implements HandleUpdateService {
             throw new RuntimeException(e);
         }
         return method;
-    }
-
-    private boolean isUserRegistered(User user) {
-        try {
-            userService.getByTelegramId(user.getId());
-            return !Objects.equals(userService.getByTelegramId(user.getId()).getRefreshToken(), "IRT");
-        } catch (Exception e) {
-            return false;
-        }
     }
 }

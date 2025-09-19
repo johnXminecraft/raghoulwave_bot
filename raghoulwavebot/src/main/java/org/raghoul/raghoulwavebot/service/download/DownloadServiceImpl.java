@@ -5,7 +5,7 @@ import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.raghoul.raghoulwavebot.dto.user.UserDto;
+import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
 import org.raghoul.raghoulwavebot.service.audiotag.AudioTagService;
 import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
 import org.springframework.stereotype.Service;
@@ -32,14 +32,14 @@ public class DownloadServiceImpl implements DownloadService {
     private final AudioTagService audioTagService;
 
     @Override
-    public String sendTrack(UserDto user, IPlaylistItem item) {
-        String trackPath = downloadTrack(user, item);
-        audioTagService.setTrackTags(user, item, new File(trackPath));
+    public String sendTrack(BotUserDto botUserDto, IPlaylistItem item) {
+        String trackPath = downloadTrack(botUserDto, item);
+        audioTagService.setTrackTags(botUserDto, item, new File(trackPath));
         try {
             if(trackPath.startsWith(downloadPath)) {
                 String command = "curl";
                 String param = "-F";
-                String param1key1 = "chat_id=" + user.getTelegramId();
+                String param1key1 = "chat_id=" + botUserDto.getTelegramId();
                 String param1key2 = "audio=@" + trackPath;
                 String request = "https://api.telegram.org/bot" + botToken + "/sendAudio";
                 try {
@@ -79,7 +79,7 @@ public class DownloadServiceImpl implements DownloadService {
         }
     }
 
-    public String downloadTrack(UserDto user, IPlaylistItem item) {
+    public String downloadTrack(BotUserDto user, IPlaylistItem item) {
         String command = "yt-dlp";
         String type = "-t";
         String typeName = "mp3";
@@ -130,7 +130,7 @@ public class DownloadServiceImpl implements DownloadService {
         }
     }
 
-    private String getYtMusicTrackLink(UserDto user, IPlaylistItem item) {
+    private String getYtMusicTrackLink(BotUserDto user, IPlaylistItem item) {
         if(!spotifyWebApiService.doesTrackExist(user, item)) {
             return "No such track found :(";
         }
