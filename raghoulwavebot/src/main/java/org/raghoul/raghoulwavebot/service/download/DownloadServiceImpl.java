@@ -151,7 +151,7 @@ public class DownloadServiceImpl implements DownloadService {
     }
 
     private String getYtMusicTrackLink(BotUserDto user, IPlaylistItem item) {
-        if(!spotifyWebApiService.doesTrackExist(user, item)) {
+        /*if(!spotifyWebApiService.doesTrackExist(user, item)) {
             return "No such track found :(";
         }
         Track track = spotifyWebApiService.getTrackMetadata(user, item);
@@ -159,8 +159,8 @@ public class DownloadServiceImpl implements DownloadService {
         String ytMusicTrackId = getYtMusicTrackId(query);
         if(Objects.equals(ytMusicTrackId, "Something went wrong... :(")) {
             return ytMusicTrackId;
-        }
-        return "https://music.youtube.com/watch?v=" + ytMusicTrackId;
+        }*/
+        return "https://music.youtube.com/watch?v=";
     }
 
     private boolean clearDirectory() {
