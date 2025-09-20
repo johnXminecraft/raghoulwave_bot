@@ -4,7 +4,18 @@ import com.neovisionaries.i18n.CountryCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;
+import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
 import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
+import org.raghoul.raghoulwavebot.dto.bot_user_track.BotUserTrackDto;
+import org.raghoul.raghoulwavebot.dto.spotify_current_track_response.SpotifyCurrentTrackResponseDto;
+import org.raghoul.raghoulwavebot.mapper.bot_track.BotTrackMapper;
+import org.raghoul.raghoulwavebot.mapper.spotify_current_track_response.SpotifyCurrentTrackResponseMapper;
+import org.raghoul.raghoulwavebot.model.bot_track.BotTrack;
+import org.raghoul.raghoulwavebot.model.composite_key.bot_user_track.BotUserTrackId;
+import org.raghoul.raghoulwavebot.model.spotify_current_track_response.SpotifyCurrentTrackResponse;
+import org.raghoul.raghoulwavebot.service.bot_track.BotTrackService;
+import org.raghoul.raghoulwavebot.service.bot_user_track.BotUserTrackService;
+import org.raghoul.raghoulwavebot.service.download.DownloadService;
 import org.raghoul.raghoulwavebot.service.spotify_web_api_authorization.SpotifyWebApiAuthorizationService;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -16,8 +27,8 @@ import se.michaelthelin.spotify.requests.data.library.GetUsersSavedTracksRequest
 import se.michaelthelin.spotify.requests.data.player.GetCurrentUsersRecentlyPlayedTracksRequest;
 import se.michaelthelin.spotify.requests.data.player.GetUsersCurrentlyPlayingTrackRequest;
 import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
-
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
 
@@ -28,27 +39,11 @@ import java.util.Objects;
 public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
 
     private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
-
-    public Track getTrackMetadata(BotUserDto botUserDto, IPlaylistItem item) {
-        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
-        SpotifyApi spotifyApi = new SpotifyApi.Builder()
-                .setAccessToken(accessToken)
-                .build();
-        String spotifyUrl = item.getExternalUrls().get("spotify");
-        String trackId = extractSpotifyTrackId(spotifyUrl);
-        GetTrackRequest request = spotifyApi.getTrack(trackId).build();
-        try {
-            Track track = request.execute();
-            if(Objects.isNull(track)) {
-                throw new SpotifyWebApiException("No such track found :(");
-            } else {
-                return track;
-            }
-        } catch (SpotifyWebApiException | IOException | ParseException e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
-    }
+    private final SpotifyCurrentTrackResponseMapper spotifyCurrentTrackResponseMapper;
+    private final DownloadService downloadService;
+    private final BotTrackMapper botTrackMapper;
+    private final BotTrackService botTrackService;
+    private final BotUserTrackService botUserTrackService;
 
     public boolean doesTrackExist(BotUserDto botUserDto, IPlaylistItem item) {
         String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
@@ -93,7 +88,7 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
     }
 
     @Override
-    public String getCurrentTrack(BotUserDto botUserDto) {
+    public SpotifyCurrentTrackResponseDto getCurrentTrack(BotUserDto botUserDto) {
         String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
@@ -106,15 +101,51 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
             if(Objects.isNull(currentlyPlaying)) {
                 throw new SpotifyWebApiException("Nothing is playing :(");
             } else {
-                return "Current track:\n\n" +
-                "<a href='" +
-                currentlyPlaying.getItem().getExternalUrls().get("spotify") +
-                "'>" +
-                currentlyPlaying.getItem().getName() +
-                "</a>\n";
+                Track track = getTrackMetadata(botUserDto, currentlyPlaying.getItem());
+                String title = Objects.requireNonNull(track).getName();
+                String artist = Objects.requireNonNull(Arrays.stream(
+                        track.getArtists()).findFirst().orElse(null)).getName();
+                String album = track.getAlbum().getName();
+                String spotifyId = extractSpotifyTrackId(currentlyPlaying.getItem().getExternalUrls().get("spotify"));
+                String youtubeId = downloadService.getYtMusicTrackId(title + " " + artist);
+                BotTrack botTrack = BotTrack.builder()
+                                            .title(title)
+                                            .artist(artist)
+                                            .album(album)
+                                            .spotifyId(spotifyId)
+                                            .youtubeId(youtubeId)
+                                            .build();
+                BotTrackDto botTrackDto = botTrackMapper.entityToDto(botTrack);
+                botTrackDto = botTrackService.add(botTrackDto);
+                BotUserTrackId id = new BotUserTrackId(botUserDto.getId(), botTrackDto.getId(), "current");
+                BotUserTrackDto botUserTrackDto = new BotUserTrackDto();
+                botUserTrackDto.setId(id);
+                botUserTrackDto.setBotUser(botUserDto);
+                botUserTrackDto.setBotTrack(botTrackDto);
+                botUserTrackService.add(botUserTrackDto);
+                return spotifyCurrentTrackResponseMapper.entityToDto(
+                        SpotifyCurrentTrackResponse.builder()
+                                .responseCode(200)
+                                .botTrack(botTrack)
+                                .output(
+                                        "Current track:\n\n" +
+                                        "<a href='" +
+                                        "https://open.spotify.com/track/" + spotifyId +
+                                        "'>" +
+                                        artist + " " + title + " (" + album + ")" +
+                                        "</a>\n"
+                                )
+                                .build()
+                );
             }
         } catch (SpotifyWebApiException | IOException | ParseException e) {
-            return e.getMessage();
+            return spotifyCurrentTrackResponseMapper.entityToDto(
+                    SpotifyCurrentTrackResponse.builder()
+                            .responseCode(404)
+                            .botTrack(null)
+                            .output(e.getMessage())
+                            .build()
+            );
         }
     }
 
@@ -192,6 +223,27 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
             System.out.println(e.getMessage());
 
             return "Error";
+        }
+    }
+
+    private Track getTrackMetadata(BotUserDto botUserDto, IPlaylistItem item) {
+        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
+        SpotifyApi spotifyApi = new SpotifyApi.Builder()
+                .setAccessToken(accessToken)
+                .build();
+        String spotifyUrl = item.getExternalUrls().get("spotify");
+        String trackId = extractSpotifyTrackId(spotifyUrl);
+        GetTrackRequest request = spotifyApi.getTrack(trackId).build();
+        try {
+            Track track = request.execute();
+            if(Objects.isNull(track)) {
+                throw new SpotifyWebApiException("No such track found :(");
+            } else {
+                return track;
+            }
+        } catch (SpotifyWebApiException | IOException | ParseException e) {
+            System.out.println(e.getMessage());
+            return null;
         }
     }
 }

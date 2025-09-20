@@ -5,4 +5,5 @@ import se.michaelthelin.spotify.model_objects.IPlaylistItem;
 
 public interface DownloadService {
     String sendTrack(BotUserDto botUserDto, IPlaylistItem item);
+    String getYtMusicTrackId(String query);
 }

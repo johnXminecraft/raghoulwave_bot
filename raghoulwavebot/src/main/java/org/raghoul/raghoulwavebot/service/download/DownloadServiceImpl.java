@@ -79,7 +79,27 @@ public class DownloadServiceImpl implements DownloadService {
         }
     }
 
-    public String downloadTrack(BotUserDto user, IPlaylistItem item) {
+    @Override
+    public String getYtMusicTrackId(String query) {
+        try {
+            YouTube.Search.List search = youtube.search().list("id,snippet");
+            search.setQ(query);
+            search.setType("video");
+            search.setMaxResults(1L);
+            SearchListResponse response = search.execute();
+            List<SearchResult> results = response.getItems();
+            if (results != null && !results.isEmpty()) {
+                return results.getFirst().getId().getVideoId();
+            } else {
+                throw new IOException("Something went wrong... :(");
+            }
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        }
+    }
+
+    private String downloadTrack(BotUserDto user, IPlaylistItem item) {
         String command = "yt-dlp";
         String type = "-t";
         String typeName = "mp3";
@@ -141,25 +161,6 @@ public class DownloadServiceImpl implements DownloadService {
             return ytMusicTrackId;
         }
         return "https://music.youtube.com/watch?v=" + ytMusicTrackId;
-    }
-
-    private String getYtMusicTrackId(String query) {
-        try {
-            YouTube.Search.List search = youtube.search().list("id,snippet");
-            search.setQ(query);
-            search.setType("video");
-            search.setMaxResults(1L);
-            SearchListResponse response = search.execute();
-            List<SearchResult> results = response.getItems();
-            if (results != null && !results.isEmpty()) {
-                return results.getFirst().getId().getVideoId();
-            } else {
-                throw new IOException("Something went wrong... :(");
-            }
-        } catch(Exception e) {
-            System.out.println(e.getMessage());
-            return e.getMessage();
-        }
     }
 
     private boolean clearDirectory() {

@@ -9,13 +9,13 @@ import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
 @AllArgsConstructor
 @Builder
 public class SpotifyCurrentTrackResponseDto {
-    private boolean exist;
+    private Integer responseCode;
     private BotTrackDto botTrack;
     private String output;
 
     @Override
     public String toString() {
-        return "\nSpotifyResponseDTO(exist=" + this.isExist() +
+        return "\nSpotifyResponseDTO(responseCode=" + this.getResponseCode() +
                 ", botTrack=" + this.getBotTrack() +
                 ", output=" + this.getOutput() +
                 ")";

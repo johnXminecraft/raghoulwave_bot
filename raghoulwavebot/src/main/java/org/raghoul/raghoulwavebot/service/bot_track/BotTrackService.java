@@ -6,8 +6,8 @@ import java.util.List;
 public interface BotTrackService {
     BotTrackDto getById(Integer id);
     List<BotTrackDto> getAll();
-    void add(BotTrackDto botTrackDto);
-    void update(BotTrackDto botTrackDto);
+    BotTrackDto add(BotTrackDto botTrackDto);
+    BotTrackDto update(BotTrackDto botTrackDto);
     void deleteById(Integer id);
     List<BotTrackDto> getByTitle(String title);
     List<BotTrackDto> getByArtist(String artist);

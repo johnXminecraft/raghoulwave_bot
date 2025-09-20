@@ -33,15 +33,13 @@ public class BotUserTrackServiceImpl implements BotUserTrackService {
     }
 
     @Override
-    public void add(BotUserTrackDto botUserTrackDto) {
-        BotUserTrack botUserTrack = botUserTrackMapper.dtoToEntity(botUserTrackDto);
-        botUserTrackRepository.save(botUserTrack);
+    public BotUserTrackDto add(BotUserTrackDto botUserTrackDto) {
+        return botUserTrackMapper.entityToDto(botUserTrackRepository.save(botUserTrackMapper.dtoToEntity(botUserTrackDto)));
     }
 
     @Override
-    public void update(BotUserTrackDto botUserTrackDto) {
-        BotUserTrack botUserTrack = botUserTrackMapper.dtoToEntity(botUserTrackDto);
-        botUserTrackRepository.save(botUserTrack);
+    public BotUserTrackDto update(BotUserTrackDto botUserTrackDto) {
+        return botUserTrackMapper.entityToDto(botUserTrackRepository.save(botUserTrackMapper.dtoToEntity(botUserTrackDto)));
     }
 
     @Override

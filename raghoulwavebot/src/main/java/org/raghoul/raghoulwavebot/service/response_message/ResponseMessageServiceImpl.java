@@ -3,6 +3,7 @@ package org.raghoul.raghoulwavebot.service.response_message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
+import org.raghoul.raghoulwavebot.dto.spotify_current_track_response.SpotifyCurrentTrackResponseDto;
 import org.raghoul.raghoulwavebot.service.download.DownloadService;
 import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
 import org.raghoul.raghoulwavebot.service.menu.MenuService;
@@ -129,14 +130,16 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         return messageToSend;
     }
 
+    // finish this one
     private SendMessage getCurrentTrackResponseMessage(User user, String botState, String command) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
         if (botUserService.isUserRegistered(user.getId())) {
-            BotUserDto userDto = botUserService.getByTelegramId(user.getId());
-            userDto.setBotState("currentTrack");
-            botUserService.update(userDto);
-            messageToSend.setText(spotifyWebApiService.getCurrentTrack(userDto));
+            BotUserDto botUserDto = botUserService.getByTelegramId(user.getId());
+            botUserDto.setBotState("currentTrack");
+            botUserService.update(botUserDto);
+            SpotifyCurrentTrackResponseDto spotifyCurrentTrackResponseDto = spotifyWebApiService.getCurrentTrack(botUserDto);
+            messageToSend.setText(spotifyCurrentTrackResponseDto.getOutput());
             messageToSend.setReplyMarkup(menuService.getMenu(botState, command));
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");

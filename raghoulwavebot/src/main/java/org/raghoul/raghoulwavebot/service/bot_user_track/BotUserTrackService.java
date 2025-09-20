@@ -8,7 +8,7 @@ import java.util.List;
 public interface BotUserTrackService {
     BotUserTrackDto getById(BotUserTrackId id);
     List<BotUserTrackDto> getAll();
-    void add(BotUserTrackDto botUserTrackDto);
-    void update(BotUserTrackDto botUserTrackDto);
+    BotUserTrackDto add(BotUserTrackDto botUserTrackDto);
+    BotUserTrackDto update(BotUserTrackDto botUserTrackDto);
     void deleteById(BotUserTrackId id);
 }

@@ -9,7 +9,7 @@ import org.raghoul.raghoulwavebot.model.bot_track.BotTrack;
 @AllArgsConstructor
 @Builder
 public class SpotifyCurrentTrackResponse {
-    private boolean exist;
+    private Integer responseCode;
     private BotTrack botTrack;
     private String output;
 }

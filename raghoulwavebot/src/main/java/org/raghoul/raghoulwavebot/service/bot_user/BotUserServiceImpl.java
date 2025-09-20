@@ -33,15 +33,13 @@ public class BotUserServiceImpl implements BotUserService {
     }
 
     @Override
-    public void add(BotUserDto botUserDto) {
-        BotUser botUser = botUserMapper.dtoToEntity(botUserDto);
-        botUserRepository.save(botUser);
+    public BotUserDto add(BotUserDto botUserDto) {
+        return botUserMapper.entityToDto(botUserRepository.save(botUserMapper.dtoToEntity(botUserDto)));
     }
 
     @Override
-    public void update(BotUserDto botUserDto) {
-        BotUser botUser = botUserMapper.dtoToEntity(botUserDto);
-        botUserRepository.save(botUser);
+    public BotUserDto update(BotUserDto botUserDto) {
+        return botUserMapper.entityToDto(botUserRepository.save(botUserMapper.dtoToEntity(botUserDto)));
     }
 
     @Override

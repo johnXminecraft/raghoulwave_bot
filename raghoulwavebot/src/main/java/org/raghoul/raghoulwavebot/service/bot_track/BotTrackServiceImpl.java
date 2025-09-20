@@ -35,13 +35,13 @@ public class BotTrackServiceImpl implements BotTrackService {
     }
 
     @Override
-    public void add(BotTrackDto botTrackDto) {
-        botTrackRepository.save(botTrackMapper.dtoToEntity(botTrackDto));
+    public BotTrackDto add(BotTrackDto botTrackDto) {
+        return botTrackMapper.entityToDto(botTrackRepository.save(botTrackMapper.dtoToEntity(botTrackDto)));
     }
 
     @Override
-    public void update(BotTrackDto botTrackDto) {
-        botTrackRepository.save(botTrackMapper.dtoToEntity(botTrackDto));
+    public BotTrackDto update(BotTrackDto botTrackDto) {
+        return botTrackMapper.entityToDto(botTrackRepository.save(botTrackMapper.dtoToEntity(botTrackDto)));
     }
 
     @Override

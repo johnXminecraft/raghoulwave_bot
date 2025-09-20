@@ -7,8 +7,8 @@ import java.util.List;
 public interface BotUserService {
     BotUserDto getById(Integer id);
     List<BotUserDto> getAll();
-    void add(BotUserDto botUserDto);
-    void update(BotUserDto botUserDto);
+    BotUserDto add(BotUserDto botUserDto);
+    BotUserDto update(BotUserDto botUserDto);
     void deleteById(Integer id);
     BotUserDto getByTelegramId(Long telegramId);
     BotUserDto getByState(String state);
