@@ -2,8 +2,11 @@ package org.raghoul.raghoulwavebot.service.response_message;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
 import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
+import org.raghoul.raghoulwavebot.dto.download_track_response.DownloadTrackResponseDto;
 import org.raghoul.raghoulwavebot.dto.spotify_current_track_response.SpotifyCurrentTrackResponseDto;
+import org.raghoul.raghoulwavebot.service.bot_track.BotTrackService;
 import org.raghoul.raghoulwavebot.service.download.DownloadService;
 import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
 import org.raghoul.raghoulwavebot.service.menu.MenuService;
@@ -12,7 +15,6 @@ import org.raghoul.raghoulwavebot.service.bot_user.BotUserService;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.User;
-import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,10 +25,11 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     private final BotUserService botUserService;
     private final MenuService menuService;
-    private final DownloadService downloadService;
     private final SpotifyWebApiService spotifyWebApiService;
     private final TelegramBotApiAuthorizationService telegramBotApiAuthorizationService;
     private final String administratorId;
+    private final BotTrackService botTrackService;
+    private final DownloadService downloadService;
 
     @Override
     public SendMessage getResponseMessage(User user, String botState, String command) {
@@ -130,19 +133,36 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         return messageToSend;
     }
 
-    // finish this one
     private SendMessage getCurrentTrackResponseMessage(User user, String botState, String command) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        if (botUserService.isUserRegistered(user.getId())) {
-            BotUserDto botUserDto = botUserService.getByTelegramId(user.getId());
-            botUserDto.setBotState("currentTrack");
-            botUserService.update(botUserDto);
-            SpotifyCurrentTrackResponseDto spotifyCurrentTrackResponseDto = spotifyWebApiService.getCurrentTrack(botUserDto);
-            messageToSend.setText(spotifyCurrentTrackResponseDto.getOutput());
-            messageToSend.setReplyMarkup(menuService.getMenu(botState, command));
-        } else {
-            messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
+        try {
+            if (botUserService.isUserRegistered(user.getId())) {
+                // getting user
+                BotUserDto botUserDto = botUserService.getByTelegramId(user.getId());
+                botUserDto.setBotState("currentTrack");
+                botUserDto = botUserService.update(botUserDto);
+                // deleting previous current track if there is such
+                List<BotTrackDto> previousCurrentBotTracks = botTrackService.getByUserIdAndState(botUserDto.getId(), "current");
+                if(!previousCurrentBotTracks.isEmpty()) {
+                    previousCurrentBotTracks.forEach(botTrack -> {
+                        botTrackService.deleteById(botTrack.getId());
+                    });
+                }
+                // getting new current track response
+                SpotifyCurrentTrackResponseDto spotifyCurrentTrackResponseDto = spotifyWebApiService.getCurrentTrack(botUserDto);
+                messageToSend.setText(spotifyCurrentTrackResponseDto.getOutput());
+                messageToSend.setReplyMarkup(menuService.getMenu(botState, command));
+            } else {
+                /* TODO
+                *   make custom exceptions */
+                // BotUserNotRegisteredException
+                throw new Exception("Something went wrong, try registering again :(\n\nType /start to try again");
+            }
+        } catch(Exception e) {
+            messageToSend.setText(e.getMessage());
+            messageToSend.enableHtml(true);
+            return messageToSend;
         }
         messageToSend.enableHtml(true);
         return messageToSend;
@@ -151,32 +171,31 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private SendMessage downloadCurrentTrackResponseMessage(User user) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        /*if (isUserRegistered(user)) {
-            BotUserDto userDto = botUserService.getByTelegramId(user.getId());
-            userDto.setBotState("currentTrack");
-            botUserService.update(userDto);
-            messageToSend.setText(downloadService.sendTrack(userDto, currentlyPlaying.getItem()))
-            if(spotifyWebApiService.isSomethingPlayingCurrently(userDto)) {
-                CurrentlyPlaying currentlyPlaying = spotifyWebApiService.getCurrentTrack(userDto);
-                String output = downloadService.sendTrack(userDto, currentlyPlaying.getItem());
-                messageToSend.setText(output);
-            } else {
-                messageToSend.setText("Nothing is playing :(");
+        try {
+            if (botUserService.isUserRegistered(user.getId())) {
+                // getting user
+                BotUserDto botUserDto = botUserService.getByTelegramId(user.getId());
+                botUserDto.setBotState("currentTrack");
+                botUserDto = botUserService.update(botUserDto);
+                // getting track
+                List<BotTrackDto> previousCurrentBotTracks = botTrackService.getByUserIdAndState(botUserDto.getId(), "current");
+                BotTrackDto botTrackDto;
+                if(!previousCurrentBotTracks.isEmpty()) {
+                    botTrackDto = previousCurrentBotTracks.getFirst();
+                } else {
+                    /* TODO
+                     *   make custom exceptions */
+                    // NoCurrentTrackException
+                    throw new Exception("Nothing is playing currently :(");
+                }
+                // downloading track
+                DownloadTrackResponseDto downloadTrackResponseDto = downloadService.sendTrack(botUserDto, botTrackDto);
+                messageToSend.setText(downloadTrackResponseDto.getOutput());
             }
-        } else {
-            messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
-        }*/
-        messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
+        } catch(Exception e) {
+            messageToSend.setText(e.getMessage());
+        }
         messageToSend.enableHtml(true);
         return messageToSend;
-    }
-
-    private boolean isUserRegistered(User user) {
-        try {
-            botUserService.getByTelegramId(user.getId());
-            return !Objects.equals(botUserService.getByTelegramId(user.getId()).getRefreshToken(), "IRT");
-        } catch (Exception e) {
-            return false;
-        }
     }
 }

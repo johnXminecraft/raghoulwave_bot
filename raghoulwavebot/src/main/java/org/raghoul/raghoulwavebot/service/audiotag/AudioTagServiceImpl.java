@@ -6,6 +6,7 @@ import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
+import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
 import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
 import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
 import org.springframework.stereotype.Service;
@@ -19,17 +20,14 @@ import java.io.File;
 @RequiredArgsConstructor
 public class AudioTagServiceImpl implements AudioTagService {
 
-    private final SpotifyWebApiService spotifyWebApiService;
-
     @Override
-    public void setTrackTags(BotUserDto botUser, IPlaylistItem item, File file) {
-        Track track = spotifyWebApiService.getTrackMetadata(botUser, item);
+    public void setTrackTags(BotTrackDto botTrackDto, File file) {
         try {
             AudioFile audioFile = AudioFileIO.read(file);
             Tag tag = audioFile.getTagOrCreateAndSetDefault();
-            tag.setField(FieldKey.ARTIST, track.getArtists()[0].getName());
-            tag.setField(FieldKey.ALBUM, track.getAlbum().getName());
-            tag.setField(FieldKey.TITLE, track.getName());
+            tag.setField(FieldKey.ARTIST, botTrackDto.getArtist());
+            tag.setField(FieldKey.ALBUM, botTrackDto.getAlbum());
+            tag.setField(FieldKey.TITLE, botTrackDto.getTitle());
             audioFile.commit();
         } catch (Exception e) {
             System.out.println("[jaudiotagger] " + e.getMessage());

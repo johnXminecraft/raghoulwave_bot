@@ -1,10 +1,8 @@
 package org.raghoul.raghoulwavebot.service.audiotag;
 
-import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
-import se.michaelthelin.spotify.model_objects.IPlaylistItem;
-
+import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
 import java.io.File;
 
 public interface AudioTagService {
-    void setTrackTags(BotUserDto botUser, IPlaylistItem item, File file);
+    void setTrackTags(BotTrackDto botTrackDto, File file);
 }

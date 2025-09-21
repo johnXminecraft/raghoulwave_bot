@@ -1,9 +1,9 @@
 package org.raghoul.raghoulwavebot.service.download;
 
+import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
 import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
-import se.michaelthelin.spotify.model_objects.IPlaylistItem;
+import org.raghoul.raghoulwavebot.dto.download_track_response.DownloadTrackResponseDto;
 
 public interface DownloadService {
-    String sendTrack(BotUserDto botUserDto, IPlaylistItem item);
-    String getYtMusicTrackId(String query);
+    DownloadTrackResponseDto sendTrack(BotUserDto botUserDto, BotTrackDto botTrackDto);
 }
