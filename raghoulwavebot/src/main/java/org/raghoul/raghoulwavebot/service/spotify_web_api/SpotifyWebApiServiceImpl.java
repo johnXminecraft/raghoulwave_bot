@@ -15,7 +15,6 @@ import org.raghoul.raghoulwavebot.model.composite_key.bot_user_track.BotUserTrac
 import org.raghoul.raghoulwavebot.model.spotify_current_track_response.SpotifyCurrentTrackResponse;
 import org.raghoul.raghoulwavebot.service.bot_track.BotTrackService;
 import org.raghoul.raghoulwavebot.service.bot_user_track.BotUserTrackService;
-import org.raghoul.raghoulwavebot.service.download.DownloadService;
 import org.raghoul.raghoulwavebot.service.spotify_web_api_authorization.SpotifyWebApiAuthorizationService;
 import org.raghoul.raghoulwavebot.service.youtube_data_api.YoutubeDataApiService;
 import org.springframework.stereotype.Service;
@@ -237,27 +236,6 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return e.getMessage();
-        }
-    }
-
-    private boolean doesTrackExist(BotUserDto botUserDto, IPlaylistItem item) {
-        String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
-        SpotifyApi spotifyApi = new SpotifyApi.Builder()
-                .setAccessToken(accessToken)
-                .build();
-        String spotifyUrl = item.getExternalUrls().get("spotify");
-        String trackId = extractSpotifyTrackId(spotifyUrl);
-        GetTrackRequest request = spotifyApi.getTrack(trackId).build();
-        try {
-            Track track = request.execute();
-            if(Objects.isNull(track)) {
-                throw new SpotifyWebApiException("No such track found :(");
-            } else {
-                return true;
-            }
-        } catch (SpotifyWebApiException | IOException | ParseException e) {
-            System.out.println(e.getMessage());
-            return false;
         }
     }
 }

@@ -7,11 +7,7 @@ import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
-import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
-import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
 import org.springframework.stereotype.Service;
-import se.michaelthelin.spotify.model_objects.IPlaylistItem;
-import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.io.File;
 

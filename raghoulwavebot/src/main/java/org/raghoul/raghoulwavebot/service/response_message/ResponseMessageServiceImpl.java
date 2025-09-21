@@ -145,9 +145,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
                 // deleting previous current track if there is such
                 List<BotTrackDto> previousCurrentBotTracks = botTrackService.getByUserIdAndState(botUserDto.getId(), "current");
                 if(!previousCurrentBotTracks.isEmpty()) {
-                    previousCurrentBotTracks.forEach(botTrack -> {
-                        botTrackService.deleteById(botTrack.getId());
-                    });
+                    previousCurrentBotTracks.forEach(botTrack -> botTrackService.deleteById(botTrack.getId()));
                 }
                 // getting new current track response
                 SpotifyCurrentTrackResponseDto spotifyCurrentTrackResponseDto = spotifyWebApiService.getCurrentTrack(botUserDto);
