@@ -120,12 +120,14 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         return messageToSend;
     }
 
+    /* TODO
+    *   finish this one */
     private SendMessage getSavedTracksResponseMessage(User user) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
         if (botUserService.isUserRegistered(user.getId())) {
             BotUserDto userDto = botUserService.getByTelegramId(user.getId());
-            messageToSend.setText(spotifyWebApiService.getSavedTracks(userDto));
+            // messageToSend.setText(spotifyWebApiService.getSavedTracks(userDto));
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
         }

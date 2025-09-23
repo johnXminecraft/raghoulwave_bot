@@ -13,4 +13,3 @@ public class BotUserTrackId implements Serializable {
     private Integer botTrackId;
     private String state;
 }
-

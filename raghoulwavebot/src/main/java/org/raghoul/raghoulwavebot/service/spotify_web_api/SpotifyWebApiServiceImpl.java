@@ -6,17 +6,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;
 import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
 import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
-import org.raghoul.raghoulwavebot.dto.bot_user_track.BotUserTrackDto;
 import org.raghoul.raghoulwavebot.dto.spotify_current_track_response.SpotifyCurrentTrackResponseDto;
+import org.raghoul.raghoulwavebot.dto.spotify_saved_tracks_response.SpotifySavedTracksResponseDto;
 import org.raghoul.raghoulwavebot.mapper.bot_track.BotTrackMapper;
 import org.raghoul.raghoulwavebot.mapper.spotify_current_track_response.SpotifyCurrentTrackResponseMapper;
+import org.raghoul.raghoulwavebot.mapper.spotify_saved_tracks_response.SpotifySavedTracksResponseMapper;
 import org.raghoul.raghoulwavebot.model.bot_track.BotTrack;
-import org.raghoul.raghoulwavebot.model.composite_key.bot_user_track.BotUserTrackId;
 import org.raghoul.raghoulwavebot.model.spotify_current_track_response.SpotifyCurrentTrackResponse;
+import org.raghoul.raghoulwavebot.model.spotify_saved_tracks_response.SpotifySavedTracksResponse;
 import org.raghoul.raghoulwavebot.service.bot_track.BotTrackService;
-import org.raghoul.raghoulwavebot.service.bot_user_track.BotUserTrackService;
 import org.raghoul.raghoulwavebot.service.spotify_web_api_authorization.SpotifyWebApiAuthorizationService;
-import org.raghoul.raghoulwavebot.service.youtube_data_api.YoutubeDataApiService;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
@@ -28,9 +27,7 @@ import se.michaelthelin.spotify.requests.data.player.GetCurrentUsersRecentlyPlay
 import se.michaelthelin.spotify.requests.data.player.GetUsersCurrentlyPlayingTrackRequest;
 import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 @SuppressWarnings("StringBufferReplaceableByString")
 @Service
@@ -40,10 +37,9 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
 
     private final SpotifyWebApiAuthorizationService spotifyWebApiAuthorizationService;
     private final SpotifyCurrentTrackResponseMapper spotifyCurrentTrackResponseMapper;
-    private final YoutubeDataApiService youtubeDataApiService;
     private final BotTrackMapper botTrackMapper;
     private final BotTrackService botTrackService;
-    private final BotUserTrackService botUserTrackService;
+    private final SpotifySavedTracksResponseMapper spotifySavedTracksResponseMapper;
 
     @Override
     public SpotifyCurrentTrackResponseDto getCurrentTrack(BotUserDto botUserDto) {
@@ -67,43 +63,19 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
                 // getting track info and saving it to db
                 Track track = getTrackMetadata(botUserDto, currentlyPlaying.getItem());
 
-                String title = Objects.requireNonNull(track).getName();
-                String artist = Objects.requireNonNull(Arrays.stream(
-                        track.getArtists()).findFirst().orElse(null)).getName();
-                String album = track.getAlbum().getName();
-                String spotifyId = extractSpotifyTrackId(currentlyPlaying.getItem().getExternalUrls().get("spotify"));
-                String youtubeId = youtubeDataApiService.getYtMusicTrackId(title + " " + artist);
-
-                BotTrack botTrack = BotTrack.builder()
-                                            .title(title)
-                                            .artist(artist)
-                                            .album(album)
-                                            .spotifyId(spotifyId)
-                                            .youtubeId(youtubeId)
-                                            .build();
-
-                BotTrackDto botTrackDto = botTrackMapper.entityToDto(botTrack);
-                botTrackDto = botTrackService.add(botTrackDto);
-
-                // creating relation between track and user
-                BotUserTrackId id = new BotUserTrackId(botUserDto.getId(), botTrackDto.getId(), "current");
-                BotUserTrackDto botUserTrackDto = new BotUserTrackDto();
-                botUserTrackDto.setId(id);
-                botUserTrackDto.setBotUser(botUserDto);
-                botUserTrackDto.setBotTrack(botTrackDto);
-                botUserTrackService.add(botUserTrackDto);
+                BotTrackDto botTrackDto = botTrackService.spotifyTrackToBotTrackDto(botUserDto, track);
 
                 return spotifyCurrentTrackResponseMapper.entityToDto(
                         SpotifyCurrentTrackResponse.builder()
                                 .responseCode(200)
-                                .botTrack(botTrack)
+                                .botTrack(botTrackMapper.dtoToEntity(botTrackDto))
                                 .output(
                                         "Current track:\n\n" +
                                         "<a href='" +
-                                        "https://open.spotify.com/track/" + spotifyId +
+                                        "https://open.spotify.com/track/" + botTrackDto.getSpotifyId() +
                                         "'>" +
-                                        artist + " " + title + " (" + album + ")" +
-                                        "</a>\n"
+                                        botTrackDto.getArtist() + " " + botTrackDto.getTitle() +
+                                        " (" + botTrackDto.getAlbum() + ")" + "</a>\n"
                                 )
                                 .build()
                 );
@@ -121,40 +93,75 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
     }
 
     @Override
-    public String getSavedTracks(BotUserDto botUserDto) {
+    public SpotifySavedTracksResponseDto getSavedTracks(BotUserDto botUserDto) {
+        // getting spotify access token and spotify api object
         String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
+
+        // creating request for user's saved tracks
         GetUsersSavedTracksRequest request = spotifyApi.getUsersSavedTracks().
                 limit(10)
                 .offset(0)
+                /* TODO
+                *   make different markets for different users */
                 .market(CountryCode.UA)
                 .build();
+
         try {
+            // executing request and getting user's saved tracks
             Paging<SavedTrack> savedTrackPaging = request.execute();
             SavedTrack[] savedTrack = savedTrackPaging.getItems();
+
+            // creating list for all saved tracks
+            List<BotTrack> botTracks = new ArrayList<>();
+
+            String output = "Here are your saved tracks :)/n/n";
             StringBuilder outputBuilder = new StringBuilder();
 
+            // getting tracks, adding them to response object, creating output
             for(SavedTrack savedTrackItem : savedTrack) {
-                outputBuilder
-                        .append("<a href='")
-                        .append(savedTrackItem.getTrack().getExternalUrls().get("spotify"))
+                Track track = savedTrackItem.getTrack();
+                BotTrackDto botTrackDto = botTrackService.spotifyTrackToBotTrackDto(botUserDto, track);
+                BotTrack botTrack = botTrackMapper.dtoToEntity(botTrackDto);
+                botTracks.add(botTrack);
+                outputBuilder.append("<a href='https://open.spotify.com/track/")
+                        .append(botTrackDto.getSpotifyId())
                         .append("'>")
-                        .append(savedTrackItem.getTrack().getName())
-                        .append("</a>\n");
+                        .append(botTrackDto.getArtist())
+                        .append(" ")
+                        .append(botTrackDto.getTitle())
+                        .append(" (")
+                        .append(botTrackDto.getAlbum())
+                        .append(")</a>\n");
+                output = outputBuilder.toString();
             }
 
-            String output = outputBuilder.toString();
-
-            return "Saved tracks:\n\n" + output;
+            return spotifySavedTracksResponseMapper.entityToDto(
+                    SpotifySavedTracksResponse.builder()
+                            .responseCode(200)
+                            .botTracks(botTracks)
+                            .output(output)
+                            .build()
+            );
         } catch (SpotifyWebApiException | IOException | ParseException e) {
+            /* TODO
+            *   make custom exceptions man */
             System.out.println(e.getMessage());
 
-            return "Error";
+            return spotifySavedTracksResponseMapper.entityToDto(
+                    SpotifySavedTracksResponse.builder()
+                            .responseCode(200)
+                            .botTracks(null)
+                            .output(e.getMessage())
+                            .build()
+            );
         }
     }
 
+    /* TODO
+    *   finish this one */
     @Override
     public String getRecentlyPlayedTracks(BotUserDto botUserDto) {
 
@@ -197,6 +204,28 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
         }
     }
 
+    @Override
+    public String extractSpotifyTrackId(String url) {
+        try {
+            if (url == null || url.isBlank()) {
+                throw new IllegalArgumentException("Invalid track URL :(");
+            }
+            int lastSlash = url.lastIndexOf("/");
+            if (lastSlash == -1 || lastSlash == url.length() - 1) {
+                throw new IllegalArgumentException("Invalid track URL :(");
+            }
+            String idPart = url.substring(lastSlash + 1);
+            String[] parts = idPart.split("\\?");
+            if (parts.length == 0 || parts[0].isBlank()) {
+                throw new IllegalArgumentException("Invalid track URL :(");
+            }
+            return parts[0];
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        }
+    }
+
     private Track getTrackMetadata(BotUserDto botUserDto, IPlaylistItem item) {
         String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
@@ -215,27 +244,6 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
         } catch (SpotifyWebApiException | IOException | ParseException e) {
             System.out.println(e.getMessage());
             return null;
-        }
-    }
-
-    private String extractSpotifyTrackId(String url) {
-        try {
-            if (url == null || url.isBlank()) {
-                throw new IllegalArgumentException("Invalid track URL :(");
-            }
-            int lastSlash = url.lastIndexOf("/");
-            if (lastSlash == -1 || lastSlash == url.length() - 1) {
-                throw new IllegalArgumentException("Invalid track URL :(");
-            }
-            String idPart = url.substring(lastSlash + 1);
-            String[] parts = idPart.split("\\?");
-            if (parts.length == 0 || parts[0].isBlank()) {
-                throw new IllegalArgumentException("Invalid track URL :(");
-            }
-            return parts[0];
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return e.getMessage();
         }
     }
 }
