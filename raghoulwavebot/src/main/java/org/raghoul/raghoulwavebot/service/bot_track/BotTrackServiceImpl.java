@@ -11,7 +11,6 @@ import org.raghoul.raghoulwavebot.model.composite_key.bot_user_track.BotUserTrac
 import org.raghoul.raghoulwavebot.repository.bot_track.BotTrackRepository;
 import org.raghoul.raghoulwavebot.repository.bot_user_track.BotUserTrackRepository;
 import org.raghoul.raghoulwavebot.service.bot_user_track.BotUserTrackService;
-import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
 import org.raghoul.raghoulwavebot.service.youtube_data_api.YoutubeDataApiService;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.model_objects.specification.Track;
@@ -29,7 +28,6 @@ public class BotTrackServiceImpl implements BotTrackService {
     private final BotTrackRepository botTrackRepository;
     private final BotUserTrackRepository botUserTrackRepository;
     private final BotTrackMapper botTrackMapper;
-    private final SpotifyWebApiService spotifyWebApiService;
     private final YoutubeDataApiService youtubeDataApiService;
     private final BotUserTrackService botUserTrackService;
 
@@ -110,7 +108,7 @@ public class BotTrackServiceImpl implements BotTrackService {
         String title = Objects.requireNonNull(track).getName();
         String artist = Objects.requireNonNull(Arrays.stream(track.getArtists()).findFirst().orElse(null)).getName();
         String album = track.getAlbum().getName();
-        String spotifyId = spotifyWebApiService.extractSpotifyTrackId(track.getUri());
+        String spotifyId = track.getId();
         String youtubeId = youtubeDataApiService.getYtMusicTrackId(title + " " + artist);
 
         BotTrack botTrack = BotTrack.builder()
