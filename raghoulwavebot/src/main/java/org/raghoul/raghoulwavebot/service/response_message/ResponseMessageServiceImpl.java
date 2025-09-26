@@ -6,6 +6,7 @@ import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
 import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
 import org.raghoul.raghoulwavebot.dto.download_track_response.DownloadTrackResponseDto;
 import org.raghoul.raghoulwavebot.dto.spotify_current_track_response.SpotifyCurrentTrackResponseDto;
+import org.raghoul.raghoulwavebot.dto.spotify_saved_tracks_response.SpotifySavedTracksResponseDto;
 import org.raghoul.raghoulwavebot.service.bot_track.BotTrackService;
 import org.raghoul.raghoulwavebot.service.download.DownloadService;
 import org.raghoul.raghoulwavebot.service.spotify_web_api.SpotifyWebApiService;
@@ -107,6 +108,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         return messageToSend;
     }
 
+    /* TODO
+     *   finish this one */
     private SendMessage getRecentlyPlayedTracksResponseMessage(User user) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
@@ -120,14 +123,13 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         return messageToSend;
     }
 
-    /* TODO
-    *   finish this one */
     private SendMessage getSavedTracksResponseMessage(User user) {
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
         if (botUserService.isUserRegistered(user.getId())) {
-            BotUserDto userDto = botUserService.getByTelegramId(user.getId());
-            // messageToSend.setText(spotifyWebApiService.getSavedTracks(userDto));
+            BotUserDto botUserDto = botUserService.getByTelegramId(user.getId());
+            SpotifySavedTracksResponseDto spotifySavedTracksResponseDto = spotifyWebApiService.getSavedTracks(botUserDto);
+            messageToSend.setText(spotifySavedTracksResponseDto.getOutput());
         } else {
             messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
         }

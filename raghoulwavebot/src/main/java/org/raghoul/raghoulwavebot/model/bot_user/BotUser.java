@@ -3,9 +3,6 @@ package org.raghoul.raghoulwavebot.model.bot_user;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.raghoul.raghoulwavebot.model.bot_user_track.BotUserTrack;
-
-import java.util.Set;
 
 @Getter
 @Setter
@@ -34,6 +31,4 @@ public class BotUser {
     private String botState;
     @NotNull
     private Integer page;
-    @OneToMany(mappedBy = "botUser", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<BotUserTrack> botUserTracks;
 }

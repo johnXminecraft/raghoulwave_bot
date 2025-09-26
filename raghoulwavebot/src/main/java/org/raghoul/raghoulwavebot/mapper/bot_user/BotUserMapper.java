@@ -2,14 +2,12 @@ package org.raghoul.raghoulwavebot.mapper.bot_user;
 
 import org.mapstruct.Mapper;
 import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
-import org.raghoul.raghoulwavebot.mapper.bot_user_track.BotUserTrackMapper;
 import org.raghoul.raghoulwavebot.model.bot_user.BotUser;
 
 import java.util.List;
 
 @Mapper(
-        componentModel = "spring",
-        uses = {BotUserTrackMapper.class}
+        componentModel = "spring"
 )
 public interface BotUserMapper {
     BotUserDto entityToDto(BotUser entity);

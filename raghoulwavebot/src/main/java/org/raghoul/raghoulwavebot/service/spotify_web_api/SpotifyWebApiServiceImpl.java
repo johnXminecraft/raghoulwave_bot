@@ -74,8 +74,7 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
                                         "<a href='" +
                                         "https://open.spotify.com/track/" + botTrackDto.getSpotifyId() +
                                         "'>" +
-                                        botTrackDto.getArtist() + " " + botTrackDto.getTitle() +
-                                        " (" + botTrackDto.getAlbum() + ")" + "</a>\n"
+                                        botTrackDto.getArtist() + " - " + botTrackDto.getTitle() + "</a>\n"
                                 )
                                 .build()
                 );
@@ -132,9 +131,7 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
                         .append(botTrackDto.getArtist())
                         .append(" ")
                         .append(botTrackDto.getTitle())
-                        .append(" (")
-                        .append(botTrackDto.getAlbum())
-                        .append(")</a>\n");
+                        .append("</a>\n");
                 output = outputBuilder.toString();
             }
 

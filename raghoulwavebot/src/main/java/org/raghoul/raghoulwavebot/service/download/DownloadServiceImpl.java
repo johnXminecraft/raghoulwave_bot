@@ -81,7 +81,7 @@ public class DownloadServiceImpl implements DownloadService {
                             .output(
                                     "<a href='https://open.spotify.com/track/" + botTrackDto.getSpotifyId() + "'>" +
                                     botTrackDto.getArtist() + " - " + botTrackDto.getTitle() + " (" +
-                                    botTrackDto.getAlbum() + ")" + "</a> downloaded successfully!/n"
+                                    botTrackDto.getAlbum() + ")" + "</a> downloaded successfully!\n"
                             )
                             .build();
                     return downloadTrackResponseMapper.entityToDto(downloadTrackResponse);
@@ -93,7 +93,7 @@ public class DownloadServiceImpl implements DownloadService {
                             .output(
                                     "<a href='https://open.spotify.com/track/" + botTrackDto.getSpotifyId() + "'>" +
                                     botTrackDto.getArtist() + " - " + botTrackDto.getTitle() + " (" +
-                                    botTrackDto.getAlbum() + ")" + "</a> download has failed./n"
+                                    botTrackDto.getAlbum() + ")" + "</a> download has failed.\n"
                             )
                             .build();
                     return downloadTrackResponseMapper.entityToDto(downloadTrackResponse);
@@ -109,7 +109,7 @@ public class DownloadServiceImpl implements DownloadService {
                     .output(
                             "<a href='https://open.spotify.com/track/" + botTrackDto.getSpotifyId() + "'>" +
                             botTrackDto.getArtist() + " - " + botTrackDto.getTitle() + " (" +
-                            botTrackDto.getAlbum() + ")" + "</a> download has failed./n"
+                            botTrackDto.getAlbum() + ")" + "</a> download has failed.\n"
                     )
                     .build();
             return downloadTrackResponseMapper.entityToDto(downloadTrackResponse);

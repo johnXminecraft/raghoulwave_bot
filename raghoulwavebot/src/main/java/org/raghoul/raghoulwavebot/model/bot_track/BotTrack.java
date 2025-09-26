@@ -3,9 +3,6 @@ package org.raghoul.raghoulwavebot.model.bot_track;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.raghoul.raghoulwavebot.model.bot_user_track.BotUserTrack;
-
-import java.util.Set;
 
 @Getter
 @Setter
@@ -28,6 +25,4 @@ public class BotTrack {
     private String spotifyId;
     @NotNull
     private String youtubeId;
-    @OneToMany(mappedBy = "botTrack", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<BotUserTrack> botUserTracks;
 }
