@@ -19,5 +19,5 @@ public interface BotTrackService {
     BotTrackDto getByYoutubeId(String youtubeId);
     List<BotTrackDto> getByUserIdAndState(Integer botUserId, String state);
     List<BotTrackDto> getByUserId(Integer botUserId);
-    BotTrackDto spotifyTrackToBotTrackDto(BotUserDto botUserDto, Track track);
+    BotTrackDto spotifyTrackToBotTrackDto(BotUserDto botUserDto, Track track, String state);
 }

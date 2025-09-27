@@ -6,6 +6,7 @@ import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
 import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
 import org.raghoul.raghoulwavebot.dto.download_track_response.DownloadTrackResponseDto;
 import org.raghoul.raghoulwavebot.dto.spotify_current_track_response.SpotifyCurrentTrackResponseDto;
+import org.raghoul.raghoulwavebot.dto.spotify_recent_tracks_response.SpotifyRecentTracksResponseDto;
 import org.raghoul.raghoulwavebot.dto.spotify_saved_tracks_response.SpotifySavedTracksResponseDto;
 import org.raghoul.raghoulwavebot.service.bot_track.BotTrackService;
 import org.raghoul.raghoulwavebot.service.download.DownloadService;
@@ -108,30 +109,85 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         return messageToSend;
     }
 
-    /* TODO
-     *   finish this one */
     private SendMessage getRecentlyPlayedTracksResponseMessage(User user) {
+        // creating message object and setting chat id
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        if (botUserService.isUserRegistered(user.getId())) {
-            BotUserDto userDto = botUserService.getByTelegramId(user.getId());
-            messageToSend.setText(spotifyWebApiService.getRecentlyPlayedTracks(userDto));
-        } else {
-            messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
+        try {
+            // checking if user is registered
+            if(!botUserService.isUserRegistered(user.getId())) {
+                throw new Exception("Something went wrong, try registering again :(\n\nType /start to try again");
+            }
+            // getting user and recent tracks
+            BotUserDto botUserDto = botUserService.getByTelegramId(user.getId());
+            SpotifyRecentTracksResponseDto spotifyRecentTracksResponseDto = spotifyWebApiService.getRecentlyPlayedTracks(botUserDto);
+            // checking if everything is ok with saved tracks
+            if(spotifyRecentTracksResponseDto.getResponseCode() != 200) {
+                throw new Exception(spotifyRecentTracksResponseDto.getOutput());
+            }
+            // getting recent tracks from db
+            List<BotTrackDto> botTrackList = botTrackService.getByUserIdAndState(botUserDto.getId(), "recent");
+            // getting text for the message
+            StringBuilder messageTextBuilder = new StringBuilder();
+            messageTextBuilder.append(spotifyRecentTracksResponseDto.getOutput());
+            int first = botUserDto.getPage() * 10;
+            int last = first + 9;
+            for (int i = first; i < last && i < botTrackList.size(); i++) {
+                messageTextBuilder
+                        .append("<a href='https://open.spotify.com/track/")
+                        .append(botTrackList.get(i).getSpotifyId())
+                        .append("'>")
+                        .append(botTrackList.get(i).getArtist())
+                        .append(" - ")
+                        .append(botTrackList.get(i).getTitle())
+                        .append("</a>\n");
+            }
+            String messageText = messageTextBuilder.toString();
+            messageToSend.setText(messageText);
+        } catch(Exception e) {
+            messageToSend.setText(e.getMessage());
         }
         messageToSend.enableHtml(true);
         return messageToSend;
     }
 
     private SendMessage getSavedTracksResponseMessage(User user) {
+        // creating message object and setting chat id
         SendMessage messageToSend = new SendMessage();
         messageToSend.setChatId(user.getId());
-        if (botUserService.isUserRegistered(user.getId())) {
+        try {
+            // checking if user is registered
+            if(!botUserService.isUserRegistered(user.getId())) {
+                throw new Exception("Something went wrong, try registering again :(\n\nType /start to try again");
+            }
+            // getting user and saved tracks
             BotUserDto botUserDto = botUserService.getByTelegramId(user.getId());
             SpotifySavedTracksResponseDto spotifySavedTracksResponseDto = spotifyWebApiService.getSavedTracks(botUserDto);
-            messageToSend.setText(spotifySavedTracksResponseDto.getOutput());
-        } else {
-            messageToSend.setText("Something went wrong, try registering again :(\n\nType /start to try again");
+            // checking if everything is ok with saved tracks
+            if(spotifySavedTracksResponseDto.getResponseCode() != 200) {
+                throw new Exception(spotifySavedTracksResponseDto.getOutput());
+            }
+            // getting saved tracks from db
+            List<BotTrackDto> botTrackList = botTrackService.getByUserIdAndState(botUserDto.getId(), "saved");
+            // getting text for the message
+            StringBuilder messageTextBuilder = new StringBuilder();
+            messageTextBuilder.append(spotifySavedTracksResponseDto.getOutput());
+            int first = botUserDto.getPage() * 10;
+            int last = first + 9;
+            for (int i = first; i < last; i++) {
+                messageTextBuilder
+                        .append("<a href='https://open.spotify.com/track/")
+                        .append(botTrackList.get(i).getSpotifyId())
+                        .append("'>")
+                        .append(botTrackList.get(i).getArtist())
+                        .append(" - ")
+                        .append(botTrackList.get(i).getTitle())
+                        .append("</a>\n");
+            }
+            String messageText = messageTextBuilder.toString();
+            messageToSend.setText(messageText);
+        } catch(Exception e) {
+            messageToSend.setText(e.getMessage());
         }
         messageToSend.enableHtml(true);
         return messageToSend;

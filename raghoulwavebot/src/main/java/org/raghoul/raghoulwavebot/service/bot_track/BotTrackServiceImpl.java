@@ -104,7 +104,7 @@ public class BotTrackServiceImpl implements BotTrackService {
     }
 
     @Override
-    public BotTrackDto spotifyTrackToBotTrackDto(BotUserDto botUserDto, Track track) {
+    public BotTrackDto spotifyTrackToBotTrackDto(BotUserDto botUserDto, Track track, String state) {
         String title = Objects.requireNonNull(track).getName();
         String artist = Objects.requireNonNull(Arrays.stream(track.getArtists()).findFirst().orElse(null)).getName();
         String album = track.getAlbum().getName();
@@ -123,7 +123,7 @@ public class BotTrackServiceImpl implements BotTrackService {
         botTrackDto = add(botTrackDto);
 
         // creating relation between track and user
-        BotUserTrackId id = new BotUserTrackId(botUserDto.getId(), botTrackDto.getId(), "current");
+        BotUserTrackId id = new BotUserTrackId(botUserDto.getId(), botTrackDto.getId(), state);
         BotUserTrackDto botUserTrackDto = new BotUserTrackDto();
         botUserTrackDto.setId(id);
         botUserTrackDto.setBotUser(botUserDto);

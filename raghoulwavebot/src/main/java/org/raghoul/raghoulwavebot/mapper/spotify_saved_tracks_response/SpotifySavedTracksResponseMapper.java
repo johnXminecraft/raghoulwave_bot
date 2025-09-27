@@ -2,14 +2,11 @@ package org.raghoul.raghoulwavebot.mapper.spotify_saved_tracks_response;
 
 import org.mapstruct.Mapper;
 import org.raghoul.raghoulwavebot.dto.spotify_saved_tracks_response.SpotifySavedTracksResponseDto;
-import org.raghoul.raghoulwavebot.mapper.bot_track.BotTrackMapper;
 import org.raghoul.raghoulwavebot.model.spotify_saved_tracks_response.SpotifySavedTracksResponse;
-
 import java.util.List;
 
 @Mapper(
-        componentModel = "spring",
-        uses = {BotTrackMapper.class}
+        componentModel = "spring"
 )
 public interface SpotifySavedTracksResponseMapper {
     SpotifySavedTracksResponse dtoToEntity(SpotifySavedTracksResponseDto dto);

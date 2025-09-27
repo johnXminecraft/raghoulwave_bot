@@ -1,18 +1,19 @@
 package org.raghoul.raghoulwavebot.service.spotify_web_api;
 
-import com.neovisionaries.i18n.CountryCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.ParseException;
 import org.raghoul.raghoulwavebot.dto.bot_track.BotTrackDto;
 import org.raghoul.raghoulwavebot.dto.bot_user.BotUserDto;
 import org.raghoul.raghoulwavebot.dto.spotify_current_track_response.SpotifyCurrentTrackResponseDto;
+import org.raghoul.raghoulwavebot.dto.spotify_recent_tracks_response.SpotifyRecentTracksResponseDto;
 import org.raghoul.raghoulwavebot.dto.spotify_saved_tracks_response.SpotifySavedTracksResponseDto;
 import org.raghoul.raghoulwavebot.mapper.bot_track.BotTrackMapper;
 import org.raghoul.raghoulwavebot.mapper.spotify_current_track_response.SpotifyCurrentTrackResponseMapper;
+import org.raghoul.raghoulwavebot.mapper.spotify_recent_tracks_response.SpotifyRecentTracksResponseMapper;
 import org.raghoul.raghoulwavebot.mapper.spotify_saved_tracks_response.SpotifySavedTracksResponseMapper;
-import org.raghoul.raghoulwavebot.model.bot_track.BotTrack;
 import org.raghoul.raghoulwavebot.model.spotify_current_track_response.SpotifyCurrentTrackResponse;
+import org.raghoul.raghoulwavebot.model.spotify_recent_tracks_response.SpotifyRecentTracksResponse;
 import org.raghoul.raghoulwavebot.model.spotify_saved_tracks_response.SpotifySavedTracksResponse;
 import org.raghoul.raghoulwavebot.service.bot_track.BotTrackService;
 import org.raghoul.raghoulwavebot.service.spotify_web_api_authorization.SpotifyWebApiAuthorizationService;
@@ -40,6 +41,7 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
     private final BotTrackMapper botTrackMapper;
     private final BotTrackService botTrackService;
     private final SpotifySavedTracksResponseMapper spotifySavedTracksResponseMapper;
+    private final SpotifyRecentTracksResponseMapper spotifyRecentTracksResponseMapper;
 
     @Override
     public SpotifyCurrentTrackResponseDto getCurrentTrack(BotUserDto botUserDto) {
@@ -62,15 +64,14 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
             } else {
                 // getting track info and saving it to db
                 Track track = getTrackMetadata(botUserDto, currentlyPlaying.getItem());
-
-                BotTrackDto botTrackDto = botTrackService.spotifyTrackToBotTrackDto(botUserDto, track);
+                BotTrackDto botTrackDto = botTrackService.spotifyTrackToBotTrackDto(botUserDto, track, "current");
 
                 return spotifyCurrentTrackResponseMapper.entityToDto(
                         SpotifyCurrentTrackResponse.builder()
                                 .responseCode(200)
                                 .botTrack(botTrackMapper.dtoToEntity(botTrackDto))
                                 .output(
-                                        "Current track:\n\n" +
+                                        "Here is the track you are currently listening to :)\n\n" +
                                         "<a href='" +
                                         "https://open.spotify.com/track/" + botTrackDto.getSpotifyId() +
                                         "'>" +
@@ -100,46 +101,25 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
                 .build();
 
         // creating request for user's saved tracks
-        GetUsersSavedTracksRequest request = spotifyApi.getUsersSavedTracks().
-                limit(10)
+        GetUsersSavedTracksRequest request = spotifyApi.getUsersSavedTracks()
                 .offset(0)
-                /* TODO
-                *   make different markets for different users */
-                .market(CountryCode.UA)
+                .limit(50)
                 .build();
 
         try {
             // executing request and getting user's saved tracks
             Paging<SavedTrack> savedTrackPaging = request.execute();
-            SavedTrack[] savedTrack = savedTrackPaging.getItems();
+            SavedTrack[] savedTracks = savedTrackPaging.getItems();
 
-            // creating list for all saved tracks
-            List<BotTrack> botTracks = new ArrayList<>();
-
-            String output = "Here are your saved tracks :)/n/n";
-            StringBuilder outputBuilder = new StringBuilder();
-
-            // getting tracks, adding them to response object, creating output
-            for(SavedTrack savedTrackItem : savedTrack) {
-                Track track = savedTrackItem.getTrack();
-                BotTrackDto botTrackDto = botTrackService.spotifyTrackToBotTrackDto(botUserDto, track);
-                BotTrack botTrack = botTrackMapper.dtoToEntity(botTrackDto);
-                botTracks.add(botTrack);
-                outputBuilder.append("<a href='https://open.spotify.com/track/")
-                        .append(botTrackDto.getSpotifyId())
-                        .append("'>")
-                        .append(botTrackDto.getArtist())
-                        .append(" ")
-                        .append(botTrackDto.getTitle())
-                        .append("</a>\n");
-                output = outputBuilder.toString();
+            // getting tracks, adding them to response object
+            for(SavedTrack savedTrackItem : savedTracks) {
+                botTrackService.spotifyTrackToBotTrackDto(botUserDto, savedTrackItem.getTrack(), "saved");
             }
 
             return spotifySavedTracksResponseMapper.entityToDto(
                     SpotifySavedTracksResponse.builder()
                             .responseCode(200)
-                            .botTracks(botTracks)
-                            .output(output)
+                            .output("Here are your saved tracks :)\n\n")
                             .build()
             );
         } catch (SpotifyWebApiException | IOException | ParseException e) {
@@ -149,55 +129,53 @@ public class SpotifyWebApiServiceImpl implements SpotifyWebApiService {
 
             return spotifySavedTracksResponseMapper.entityToDto(
                     SpotifySavedTracksResponse.builder()
-                            .responseCode(200)
-                            .botTracks(null)
+                            .responseCode(500)
                             .output(e.getMessage())
                             .build()
             );
         }
     }
 
-    /* TODO
-    *   finish this one */
     @Override
-    public String getRecentlyPlayedTracks(BotUserDto botUserDto) {
-
+    public SpotifyRecentTracksResponseDto getRecentlyPlayedTracks(BotUserDto botUserDto) {
+        // getting spotify access token and spotify api object
         String accessToken = spotifyWebApiAuthorizationService.authorizationCodeRefresh_Sync(botUserDto);
-
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setAccessToken(accessToken)
                 .build();
 
+        // creating request for user's recent tracks
         long currentDate = new Date().getTime();
-
         GetCurrentUsersRecentlyPlayedTracksRequest request = spotifyApi.getCurrentUsersRecentlyPlayedTracks()
-                        .before(new Date(currentDate))
-                        .limit(10)
-                        .build();
+                .limit(50)
+                .before(new Date(currentDate))
+                .build();
 
         try {
+            // executing request and getting user's saved tracks
             PagingCursorbased<PlayHistory> playHistoryPagingCursorbased = request.execute();
-
             PlayHistory[] playHistory = playHistoryPagingCursorbased.getItems();
 
-            StringBuilder outputBuilder = new StringBuilder();
-
+            // getting tracks, adding them to response object
             for(PlayHistory playHistoryItem : playHistory) {
-                outputBuilder
-                        .append("<a href='")
-                        .append(playHistoryItem.getTrack().getExternalUrls().get("spotify"))
-                        .append("'>")
-                        .append(playHistoryItem.getTrack().getName())
-                        .append("</a>\n");
+                botTrackService.spotifyTrackToBotTrackDto(botUserDto, playHistoryItem.getTrack(),"recent");
             }
 
-            String output = outputBuilder.toString();
-
-            return "Recent tracks:\n\n" + output;
+            return spotifyRecentTracksResponseMapper.entityToDto(
+                    SpotifyRecentTracksResponse.builder()
+                            .responseCode(200)
+                            .output("Here are your recent tracks :)\n\n")
+                            .build()
+            );
         } catch (SpotifyWebApiException | IOException | ParseException e) {
             System.out.println(e.getMessage());
 
-            return "Error";
+            return spotifyRecentTracksResponseMapper.entityToDto(
+                    SpotifyRecentTracksResponse.builder()
+                            .responseCode(500)
+                            .output(e.getMessage())
+                            .build()
+            );
         }
     }
 

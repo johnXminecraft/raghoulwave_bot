@@ -1,4 +1,4 @@
-package org.raghoul.raghoulwavebot.model.spotify_saved_tracks_response;
+package org.raghoul.raghoulwavebot.model.spotify_recent_tracks_response;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SpotifySavedTracksResponse {
+public class SpotifyRecentTracksResponse {
     private Integer responseCode;
     private String output;
 }
