@@ -14,10 +14,7 @@ import org.raghoul.raghoulwavebot.service.bot_user_track.BotUserTrackService;
 import org.raghoul.raghoulwavebot.service.youtube_data_api.YoutubeDataApiService;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.model_objects.specification.Track;
-
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -105,10 +102,23 @@ public class BotTrackServiceImpl implements BotTrackService {
 
     @Override
     public BotTrackDto spotifyTrackToBotTrackDto(BotUserDto botUserDto, Track track, String state) {
-        String title = Objects.requireNonNull(track).getName();
-        String artist = Objects.requireNonNull(Arrays.stream(track.getArtists()).findFirst().orElse(null)).getName();
+        String title = track.getName();
+        String artist = track.getArtists()[0].getName();
         String album = track.getAlbum().getName();
         String spotifyId = track.getId();
+
+        // check if track already exists
+        BotTrackDto existing = getBySpotifyId(spotifyId);
+        if (existing != null) {
+            // just create the relation, don't fetch YouTube or reinsert
+            botUserTrackService.add(new BotUserTrackDto(
+                    new BotUserTrackId(botUserDto.getId(), existing.getId(), state),
+                    botUserDto, existing
+            ));
+            return existing;
+        }
+
+        // fetch youtube id only if new
         String youtubeId = youtubeDataApiService.getYtMusicTrackId(title + " " + artist);
 
         BotTrack botTrack = BotTrack.builder()
@@ -119,16 +129,12 @@ public class BotTrackServiceImpl implements BotTrackService {
                 .youtubeId(youtubeId)
                 .build();
 
-        BotTrackDto botTrackDto = botTrackMapper.entityToDto(botTrack);
-        botTrackDto = add(botTrackDto);
+        BotTrackDto botTrackDto = add(botTrackMapper.entityToDto(botTrack));
 
-        // creating relation between track and user
-        BotUserTrackId id = new BotUserTrackId(botUserDto.getId(), botTrackDto.getId(), state);
-        BotUserTrackDto botUserTrackDto = new BotUserTrackDto();
-        botUserTrackDto.setId(id);
-        botUserTrackDto.setBotUser(botUserDto);
-        botUserTrackDto.setBotTrack(botTrackDto);
-        botUserTrackService.add(botUserTrackDto);
+        botUserTrackService.add(new BotUserTrackDto(
+                new BotUserTrackId(botUserDto.getId(), botTrackDto.getId(), state),
+                botUserDto, botTrackDto
+        ));
 
         return botTrackDto;
     }
